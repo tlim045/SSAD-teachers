@@ -1,9 +1,11 @@
 import Dashboard from "@material-ui/icons/Dashboard";
 import Person from "@material-ui/icons/Person";
-import Notifications from "@material-ui/icons/Notifications";
+import EditIcon from '@material-ui/icons/Edit';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import DashboardPage from "views/Dashboard/Dashboard.js";
 import UserProfile from "views/UserProfile/UserProfile.js";
 import NotificationsPage from "views/Notifications/Notifications.js";
+import ViewQuestionsPage from "views/ViewQuestions";
 
 
 const dashboardRoutes = [
@@ -21,16 +23,23 @@ const dashboardRoutes = [
     component: UserProfile,
     layout: "/admin"
   },
+  // {
+  //   path: "/notifications",
+  //   name: "Edit Game",
+  //   icon: Notifications,
+  //   component: NotificationsPage,
+  //   layout: "/admin"
+  // },
   {
-    path: "/notifications",
+    path: "/questions",
     name: "Edit Game",
-    icon: Notifications,
-    component: NotificationsPage,
+    icon: EditIcon,
+    component: ViewQuestionsPage,
     layout: "/admin"
   },
   {
     name: "Sign Out",
-    icon: Notifications,
+    icon: ExitToAppIcon,
   }
 ];
 
