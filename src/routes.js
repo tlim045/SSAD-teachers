@@ -6,7 +6,7 @@ import DashboardPage from "views/Dashboard/Dashboard.js";
 import UserProfile from "views/UserProfile/UserProfile.js";
 import NotificationsPage from "views/Notifications/Notifications.js";
 import ViewQuestionsPage from "views/ViewQuestions";
-
+import StudentPage from "views/ViewStudents";
 
 const dashboardRoutes = [
   {
@@ -36,6 +36,14 @@ const dashboardRoutes = [
     icon: EditIcon,
     component: ViewQuestionsPage,
     layout: "/admin"
+  },
+  {
+    path: "/student/Michael-Scott",
+    name: "Michael Scott",
+    component: StudentPage,
+    layout: "/admin",
+    icon: EditIcon,
+    hidden: true
   },
   {
     name: "Sign Out",

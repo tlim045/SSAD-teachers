@@ -68,6 +68,12 @@ const useStyles = makeStyles((theme) => ({
   bar: {
       display: 'flex',
       marginTop: '1em'
+  },
+  typo: {
+    color: "#999"
+  },
+  cell: {
+    color: "#3C4858"
   }
 }));
 
@@ -87,7 +93,7 @@ export default function ViewQuestions() {
 
   return (
     <div className={classes.root}>
-      <Typography variant="h4" component="h2" gutterBottom>
+      <Typography variant="h4" gutterBottom className={classes.typo}>
           All Quizzes
       </Typography>
       <div className={classes.bar}>
@@ -125,7 +131,7 @@ export default function ViewQuestions() {
                     {columns.map((column) => {
                       const value = row[column.id];
                       return (
-                        <TableCell key={column.id} align={column.align}>
+                        <TableCell key={column.id} align={column.align} className={classes.cell}>
                           {column.format && typeof value === 'number' ? column.format(value) : value}
                         </TableCell>
                       );
