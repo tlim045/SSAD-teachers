@@ -50,7 +50,7 @@ renderRow.propTypes = {
 };
 // table
 const columns = [
-  { id: 'name', label: 'Name', minWidth: 170 },
+  { id: 'name', label: 'Name', minWidth: 170, type: 'link' },
   { id: 'email', label: 'Email', minWidth: 100 },
   { id: 'lab', label: 'Lab Group', minWidth: 100 },
   { id: 'level', label: 'Current level', minWidth: 100 },
@@ -64,7 +64,7 @@ function createData(name, email, lab, level, score) {
 }
 
 const rows = [
-  createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
+  createData('Michael Scott', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
   createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
   createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
   createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
@@ -121,7 +121,7 @@ export default function Dashboard() {
                     const value = row[column.id];
                     return (
                       <TableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === 'number' ? column.format(value) : value}
+                        {column.type === 'link' ? <a href={`/admin/student/${value.replace(' ', '-')}`}>{value}</a>: value}
                       </TableCell>
                     );
                   })}
