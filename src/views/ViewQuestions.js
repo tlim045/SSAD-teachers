@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -15,6 +15,11 @@ import SearchIcon from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 const columns = [
   { id: 'galaxy', label: 'Galaxy', minWidth: 100 },
@@ -41,6 +46,9 @@ const useStyles = makeStyles((theme) => ({
     '& .MuiButton-contained':{
       color: 'white',
       background: '#174A84'
+    },
+    '& > *': {
+      margin: theme.spacing(1), 
     }
   },
   paperWrapper: {
@@ -54,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '2px 4px',
     display: 'flex',
     alignItems: 'center',
-    // width: 100,
+    width: 100,
     flex: 1,
     marginLeft: '30em'
   },
@@ -89,6 +97,13 @@ export default function ViewQuestions() {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
+  };
+
+  // dialog box 
+  const [open, setOpen] = React.useState(false);
+
+  const toggleModal = () => {
+    setOpen(!open)
   };
 
   return (
@@ -136,11 +151,33 @@ export default function ViewQuestions() {
                         </TableCell>
                       );
                     })}
-                    <IconButton>
+                    <IconButton onClick={toggleModal}>
                       <EditIcon />
+                      <Dialog open={open} onClose={toggleModal} aria-labelledby="form-dialog-title" maxWidth='xl'>
+                        <DialogTitle id="form-dialog-title" color='primary'>Edit Question</DialogTitle>
+                        <DialogContent>
+                        <form className={classes.root} noValidate autoComplete="off">
+                          <TextField id="standard-basic" label="Galaxy" required="true" style = {{width: '45%'}}/>
+                          <TextField id="standard-basic" label="Planet" required="true" style = {{width: '45%'}}/>
+                          <TextField id="standard-basic" label="Quiz Question" fullWidth="true" required="true" style = {{width: '91%'}}/>
+                          <TextField id="standard-basic" label="Option 1" required="true" style = {{width: '45%'}}/>
+                          <TextField id="standard-basic" label="Option 2" required="true" style = {{width: '45%'}}/>
+                          <TextField id="standard-basic" label="Option 3" required="true" style = {{width: '45%'}}/>
+                          <TextField id="standard-basic" label="Option 4" required="true" style = {{width: '45%'}}/>
+                        </form>
+                        </DialogContent>
+                        <DialogActions>
+                          <Button onClick={toggleModal} color="primary">
+                            Cancel
+                          </Button>
+                          <Button onClick={toggleModal} color="primary">
+                            Update Quiz
+                          </Button>
+                        </DialogActions>
+                      </Dialog>
                     </IconButton>
                     <IconButton>
-                      <DeleteIcon />
+                      <DeleteIcon/>
                     </IconButton>
                   </TableRow>
                 );
