@@ -45,12 +45,12 @@ function createData(galaxy, planet, question) {
 
 const rows = [
   createData('Milky Way', 'Mecurry', 'Which one of the following is not an Evolutionary Process Model?'),
-  createData('Milky Way', 'Venus', "The Incremental Model is a result of combination of elements of which two models?"),
-  createData('Milky Way', 'Earth', "What is the major advantage of using Incremental Model?"),
-  createData('Milky Way', 'Mars', "The spiral model was originally proposed by"),
-  createData('Milky Way', 'Jupiter', "The spiral model has two dimensions namely _____________ and ____________"),
-  createData('Milky Way', 'Saturn', "How is WINWIN Spiral Model different from Spiral Model?"),
-  createData('Milky Way', 'Uranus', "Identify the disadvantage of Spiral Model.")
+  createData('Milky Way1', 'Venus', "The Incremental Model is a result of combination of elements of which two models?"),
+  createData('Milky Way2', 'Earth', "What is the major advantage of using Incremental Model?"),
+  createData('Milky Way3', 'Mars', "The spiral model was originally proposed by"),
+  createData('Milky Way4', 'Jupiter', "The spiral model has two dimensions namely _____________ and ____________"),
+  createData('Milky Way5', 'Saturn', "How is WINWIN Spiral Model different from Spiral Model?"),
+  createData('Milky Way6', 'Uranus', "Identify the disadvantage of Spiral Model.")
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -216,12 +216,12 @@ export default function SendAssignment() {
 
   };
 
-  const handleClick = (event, galaxy) => {
-    const selectedIndex = selected.indexOf(galaxy);
+  const handleClick = (event, question) => {
+    const selectedIndex = selected.indexOf(question);
     let newSelected = [];
 
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, galaxy);
+    if (selectedIndex === -1) { 
+      newSelected = newSelected.concat(selected, question);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -233,7 +233,6 @@ export default function SendAssignment() {
       );
     }
     setSelected(newSelected);
-    console.log(selectedIndex);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -246,7 +245,7 @@ export default function SendAssignment() {
   };
 
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
+  const isSelected = (question) => selected.indexOf(question) !== -1;
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   // original 
@@ -351,16 +350,16 @@ export default function SendAssignment() {
                       {stableSort(rows, getComparator(order, orderBy))
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((row, index) => {
-                          const isItemSelected = isSelected(row.name);
+                          const isItemSelected = isSelected(row.question);
                           const labelId = `enhanced-table-checkbox-${index}`;
                           return (
                             <TableRow
                               hover
-                              onClick={(event) => handleClick(event, row.name)}
+                              onClick={(event) => handleClick(event, row.question)}
                               role="checkbox"
                               aria-checked={isItemSelected}
                               tabIndex={-1}
-                              key={row.name}
+                              key={row.question}
                               selected={isItemSelected}
                             >
                               <TableCell padding="checkbox">
@@ -370,10 +369,10 @@ export default function SendAssignment() {
                                 />
                               </TableCell>
                               <TableCell component="th" id={labelId} scope="row" padding="none">
-                                {row.galaxy}
+                                {row.question}
                               </TableCell>
-                              <TableCell align="right">{row.planet}</TableCell>
-                              <TableCell align="right">{row.question}</TableCell>
+                              <TableCell align="left">{row.planet}</TableCell>
+                              <TableCell align="left">{row.question}</TableCell>
                             </TableRow>
                           );
                         })}
