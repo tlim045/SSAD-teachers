@@ -103,7 +103,16 @@ export default function ViewQuestions() {
   const [open, setOpen] = React.useState(false);
 
   const toggleModal = () => {
-    setOpen(!open)
+    setOpen(true);
+  };
+
+  const handleOk = () => {
+    //TODO: Update DB question 
+    setOpen(false);
+  };
+
+  const handleCancel = () => {
+      setOpen(false);
   };
 
   return (
@@ -153,7 +162,8 @@ export default function ViewQuestions() {
                     })}
                     <IconButton onClick={toggleModal}>
                       <EditIcon />
-                      <Dialog open={open} onClose={toggleModal} aria-labelledby="form-dialog-title" maxWidth='xl'>
+                    </IconButton>
+                    <Dialog open={open} onClose={handleCancel} aria-labelledby="form-dialog-title" maxWidth='xl'>
                         <DialogTitle id="form-dialog-title" color='primary'>Edit Question</DialogTitle>
                         <DialogContent>
                         <form className={classes.root} noValidate autoComplete="off">
@@ -167,15 +177,14 @@ export default function ViewQuestions() {
                         </form>
                         </DialogContent>
                         <DialogActions>
-                          <Button onClick={toggleModal} color="primary">
+                          <Button onClick={handleCancel} color="primary">
                             Cancel
                           </Button>
-                          <Button onClick={toggleModal} color="primary">
+                          <Button onClick={handleOk} color="primary">
                             Update Quiz
                           </Button>
                         </DialogActions>
                       </Dialog>
-                    </IconButton>
                     <IconButton>
                       <DeleteIcon/>
                     </IconButton>
@@ -198,3 +207,4 @@ export default function ViewQuestions() {
     </div>
   );
 }
+
