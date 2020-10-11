@@ -3,10 +3,10 @@ import Person from "@material-ui/icons/Person";
 import EditIcon from '@material-ui/icons/Edit';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import DashboardPage from "views/Dashboard/Dashboard.js";
-import UserProfile from "views/UserProfile/UserProfile.js";
-import NotificationsPage from "views/Notifications/Notifications.js";
+import UserProfile from "views/Assignment/SendAssignment.js";
 import ViewQuestionsPage from "views/ViewQuestions";
 import StudentPage from "views/ViewStudents";
+import LabPage from "views/ViewLabs";
 
 const dashboardRoutes = [
   {
@@ -41,6 +41,14 @@ const dashboardRoutes = [
     path: "/student/Michael-Scott",
     name: "Michael Scott",
     component: StudentPage,
+    layout: "/admin",
+    icon: EditIcon,
+    hidden: true
+  },
+  {
+    path: "/lab/BCG3",
+    name: "BCG3",
+    component: LabPage,
     layout: "/admin",
     icon: EditIcon,
     hidden: true

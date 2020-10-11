@@ -1,4 +1,5 @@
-import React from "react";
+  import React from "react";
+import { Link } from 'react-router-dom';
 // @material-ui/core
 import { makeStyles } from "@material-ui/core/styles";
 import { PieChart } from 'react-minimal-pie-chart';
@@ -21,7 +22,6 @@ import GridContainer from "components/Grid/GridContainer.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
-
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 
 const useStyles = makeStyles({
@@ -38,7 +38,7 @@ function renderRow(props) {
   const { index, style } = props;
 
   return (
-    <ListItem button style={style} key={index}>
+    <ListItem button style={style} key={index} component={Link} to="/admin/lab/BCG3">
       <ListItemText primary={`Item ${index + 1}`} />
     </ListItem>
   );
@@ -77,8 +77,6 @@ const rows = [
   createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934)
 
 ];
-
-
 
 export default function Dashboard() {
   const classes = useStyles();
