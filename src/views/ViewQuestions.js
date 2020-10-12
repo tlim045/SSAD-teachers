@@ -99,20 +99,35 @@ export default function ViewQuestions() {
     setPage(0);
   };
 
-  // dialog box 
-  const [open, setOpen] = React.useState(false);
+  // Add dialog
+  const [AddOpen, setAddOpen] = React.useState(false);
 
-  const toggleModal = () => {
-    setOpen(true);
+  const toggleAddModal = () => {
+    setAddOpen(true);
   };
 
-  const handleOk = () => {
+  const handleAddOk = () => {
     //TODO: Update DB question 
-    setOpen(false);
+    setAddOpen(false);
   };
 
-  const handleCancel = () => {
-      setOpen(false);
+  const handleAddCancel = () => {
+      setAddOpen(false);
+  };
+  // Edit dialog
+  const [EditOpen, setEditOpen] = React.useState(false);
+
+  const toggleEditModal = () => {
+    setEditOpen(true);
+  };
+
+  const handleEditOk = () => {
+    //TODO: Update DB question 
+    setEditOpen(false);
+  };
+
+  const handleEditCancel = () => {
+      setEditOpen(false);
   };
 
   return (
@@ -121,7 +136,29 @@ export default function ViewQuestions() {
           All Quizzes
       </Typography>
       <div className={classes.bar}>
-          <Button variant="contained">Add new question</Button>
+          <Button variant="contained" onClick={toggleAddModal}>Add new question</Button>
+          <Dialog open={AddOpen} onClose={handleAddCancel} aria-labelledby="form-dialog-title" maxWidth='xl'>
+                        <DialogTitle id="form-dialog-title" color='primary'>Add Question</DialogTitle>
+                        <DialogContent>
+                        <form className={classes.root} noValidate autoComplete="off">
+                          <TextField id="standard-basic" label="Galaxy" required="true" style = {{width: '45%'}}/>
+                          <TextField id="standard-basic" label="Planet" required="true" style = {{width: '45%'}}/>
+                          <TextField id="standard-basic" label="Quiz Question" fullWidth="true" required="true" style = {{width: '91%'}}/>
+                          <TextField id="standard-basic" label="Option 1" required="true" style = {{width: '45%'}}/>
+                          <TextField id="standard-basic" label="Option 2" required="true" style = {{width: '45%'}}/>
+                          <TextField id="standard-basic" label="Option 3" required="true" style = {{width: '45%'}}/>
+                          <TextField id="standard-basic" label="Option 4" required="true" style = {{width: '45%'}}/>
+                        </form>
+                        </DialogContent>
+                        <DialogActions>
+                          <Button onClick={handleAddCancel} color="primary">
+                            Cancel
+                          </Button>
+                          <Button onClick={handleAddOk} color="primary">
+                            Update Quiz
+                          </Button>
+                        </DialogActions>
+                      </Dialog>
           <Paper component="form" className={classes.searchBar}>
               <InputBase
                   className={classes.input}
@@ -160,10 +197,10 @@ export default function ViewQuestions() {
                         </TableCell>
                       );
                     })}
-                    <IconButton onClick={toggleModal}>
+                    <IconButton onClick={toggleEditModal}>
                       <EditIcon />
                     </IconButton>
-                    <Dialog open={open} onClose={handleCancel} aria-labelledby="form-dialog-title" maxWidth='xl'>
+                    <Dialog open={EditOpen} onClose={handleEditCancel} aria-labelledby="form-dialog-title" maxWidth='xl'>
                         <DialogTitle id="form-dialog-title" color='primary'>Edit Question</DialogTitle>
                         <DialogContent>
                         <form className={classes.root} noValidate autoComplete="off">
@@ -177,10 +214,10 @@ export default function ViewQuestions() {
                         </form>
                         </DialogContent>
                         <DialogActions>
-                          <Button onClick={handleCancel} color="primary">
+                          <Button onClick={handleEditCancel} color="primary">
                             Cancel
                           </Button>
-                          <Button onClick={handleOk} color="primary">
+                          <Button onClick={handleEditOk} color="primary">
                             Update Quiz
                           </Button>
                         </DialogActions>
