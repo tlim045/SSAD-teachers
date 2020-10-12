@@ -2,11 +2,13 @@ import Dashboard from "@material-ui/icons/Dashboard";
 import Person from "@material-ui/icons/Person";
 import EditIcon from '@material-ui/icons/Edit';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
 import DashboardPage from "views/Dashboard/Dashboard.js";
 import UserProfile from "views/Assignment/SendAssignment.js";
 import ViewQuestionsPage from "views/ViewQuestions";
 import StudentPage from "views/ViewStudents";
 import LabPage from "views/ViewLabs";
+import CreateStudentAccount from "views/CreateStudentAccount";
 
 const dashboardRoutes = [
   {
@@ -35,6 +37,13 @@ const dashboardRoutes = [
     name: "Edit Game",
     icon: EditIcon,
     component: ViewQuestionsPage,
+    layout: "/admin"
+  },
+  {
+    path: "/createAccounts",
+    name: "Create Student's Account",
+    icon: CreateNewFolderIcon,
+    component: CreateStudentAccount,
     layout: "/admin"
   },
   {

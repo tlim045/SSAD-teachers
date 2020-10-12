@@ -32,6 +32,22 @@ const useStyles = makeStyles({
   container: {
     maxHeight: 440,
   },
+  cardCategoryWhite: {
+    color: "rgba(255,255,255,.62)",
+    margin: "0",
+    fontSize: "14px",
+    marginTop: "0",
+    marginBottom: "0"
+  },
+  cardTitleWhite: {
+    color: "#FFFFFF",
+    marginTop: "0px",
+    minHeight: "auto",
+    fontWeight: "300",
+    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
+    marginBottom: "3px",
+    textDecoration: "none"
+  }
 });
 
 function renderRow(props) {
@@ -95,6 +111,15 @@ export default function Dashboard() {
   return (
     <div>
       <GridContainer>
+      <Card>
+          <CardHeader color="info">
+            <h4 className={classes.cardTitleWhite}>All Students</h4>
+            <p className={classes.cardCategoryWhite}>
+              All students taking module CZ3003
+            </p>
+          </CardHeader>
+          <CardBody>
+
       <Paper className={classes.root}>
       <TableContainer className={classes.container}>
         <Table stickyHeader aria-label="sticky table">
@@ -139,6 +164,8 @@ export default function Dashboard() {
         onChangeRowsPerPage={handleChangeRowsPerPage}
       />
     </Paper>
+    </CardBody>
+    </Card>
       </GridContainer>
 
       
