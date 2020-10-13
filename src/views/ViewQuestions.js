@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState,Fragment} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -20,6 +20,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import Checkbox from '@material-ui/core/Checkbox';
 
 const columns = [
   { id: 'galaxy', label: 'Galaxy', minWidth: 100 },
@@ -82,13 +83,23 @@ const useStyles = makeStyles((theme) => ({
   },
   cell: {
     color: "#3C4858"
-  }
+  },
+  check: {
+    alignItems: 'left',
+    flex:5
+  },
 }));
 
 export default function ViewQuestions() {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+  const [checked, setChecked] = React.useState(true);
+
+  const handleChange = (event) => {
+    setChecked(event.target.checked);
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -143,11 +154,40 @@ export default function ViewQuestions() {
                         <form className={classes.root} noValidate autoComplete="off">
                           <TextField id="standard-basic" label="Galaxy" required="true" style = {{width: '45%'}}/>
                           <TextField id="standard-basic" label="Planet" required="true" style = {{width: '45%'}}/>
-                          <TextField id="standard-basic" label="Quiz Question" fullWidth="true" required="true" style = {{width: '91%'}}/>
-                          <TextField id="standard-basic" label="Option 1" required="true" style = {{width: '45%'}}/>
-                          <TextField id="standard-basic" label="Option 2" required="true" style = {{width: '45%'}}/>
-                          <TextField id="standard-basic" label="Option 3" required="true" style = {{width: '45%'}}/>
-                          <TextField id="standard-basic" label="Option 4" required="true" style = {{width: '45%'}}/>
+                          <TextField id="standard-basic" label="Quiz Question" fullWidth="true" required="true" style = {{width: '93%'}}/>
+                          <Typography variant="h7" >
+                              Select the Checkbox with the correct option:
+                          </Typography>
+                          <div className={classes.check} >
+                          <Checkbox
+                            defaultChecked
+                            color="primary"
+                            inputProps={{ 'aria-label': 'secondary checkbox' }}
+                          />
+                          <TextField id="standard-basic" label="Option 1" required="true" style = {{width: '90%'}}/>
+                          </div>
+                          <div className={classes.check} >
+                          <Checkbox
+                            color="primary"
+                            inputProps={{ 'aria-label': 'secondary checkbox' }}
+                          />
+                          <TextField id="standard-basic" label="Option 2" required="true" style = {{width: '90%'}}/>
+                          </div>
+                          <div className={classes.check} >
+                          <Checkbox
+                            color="primary"
+                            inputProps={{ 'aria-label': 'secondary checkbox' }}
+                          />
+                          <TextField id="standard-basic" label="Option 3" required="true" style = {{width: '90%'}}/>
+                          </div>
+                          <div className={classes.check} >
+                          <Checkbox
+                            color="primary"
+                            inputProps={{ 'aria-label': 'secondary checkbox' }}
+                          />
+                          <TextField id="standard-basic" label="Option 4" required="true" style = {{width: '90%'}}/>
+                          </div>
+
                         </form>
                         </DialogContent>
                         <DialogActions>
@@ -207,10 +247,39 @@ export default function ViewQuestions() {
                           <TextField id="standard-basic" label="Galaxy" required="true" style = {{width: '45%'}}/>
                           <TextField id="standard-basic" label="Planet" required="true" style = {{width: '45%'}}/>
                           <TextField id="standard-basic" label="Quiz Question" fullWidth="true" required="true" style = {{width: '91%'}}/>
-                          <TextField id="standard-basic" label="Option 1" required="true" style = {{width: '45%'}}/>
-                          <TextField id="standard-basic" label="Option 2" required="true" style = {{width: '45%'}}/>
-                          <TextField id="standard-basic" label="Option 3" required="true" style = {{width: '45%'}}/>
-                          <TextField id="standard-basic" label="Option 4" required="true" style = {{width: '45%'}}/>
+                          <Typography variant="h7" >
+                          <br></br> {"     "}Select the Checkbox with the correct option:
+                          </Typography>
+                          <div className={classes.check} >
+
+                          <Checkbox
+                            defaultChecked
+                            color="primary"
+                            inputProps={{ 'aria-label': 'secondary checkbox' }}
+                          />
+                          <TextField id="standard-basic" label="Option 1" required="true" style = {{width: '90%'}}/>
+                          </div>
+                          <div className={classes.check} >
+                          <Checkbox
+                            color="primary"
+                            inputProps={{ 'aria-label': 'secondary checkbox' }}
+                          />
+                          <TextField id="standard-basic" label="Option 2" required="true" style = {{width: '90%'}}/>
+                          </div>
+                          <div className={classes.check} >
+                          <Checkbox
+                            color="primary"
+                            inputProps={{ 'aria-label': 'secondary checkbox' }}
+                          />
+                          <TextField id="standard-basic" label="Option 3" required="true" style = {{width: '90%'}}/>
+                          </div>
+                          <div className={classes.check} >
+                          <Checkbox
+                            color="primary"
+                            inputProps={{ 'aria-label': 'secondary checkbox' }}
+                          />
+                          <TextField id="standard-basic" label="Option 4" required="true" style = {{width: '90%'}}/>
+                          </div>
                         </form>
                         </DialogContent>
                         <DialogActions>
