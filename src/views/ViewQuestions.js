@@ -23,46 +23,20 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Checkbox from '@material-ui/core/Checkbox';
 
+axios.defaults.baseURL = "http://localhost:3000/";
+
 const columns = [
   { id: 'galaxy', label: 'Galaxy', minWidth: 100 },
   { id: 'planet', label: 'Planet', minWidth: 100 },
   { id: 'question', label: 'Question', minWidth: 100 }
 ];
 
-function createData(galaxy, planet, question) {
-  return { galaxy, planet, question };
-};
+const dictOfGalaxy = ["Planning and Definning"];
+const dictOfPlanet = ["Decomposition Techniques", "Estimation tools"];
 
-// Method 1 data retrieval
-// var request = require('request');
-
-// var url = 'http://localhost:3000/allQuestions';
-
-// request.get({
-//     url: url,
-//     json: true,
-//     headers: {'User-Agent': 'request'}
-//   }, (err, res, data) => {
-//     if (err) {
-//       console.log('Error:', err);
-//     } else if (res.statusCode !== 200) {
-//       console.log('Status:', res.statusCode);
-//     } else {
-//       // data is already parsed as JSON:
-//       console.log(data.questions);
-//     }
-// });
-
-
-const rows = [
-  createData('Milky Way', 'Mecurry', 'Which one of the following is not an Evolutionary Process Model?'),
-  createData('Milky Way', 'Venus', "The Incremental Model is a result of combination of elements of which two models?"),
-  createData('Milky Way', 'Earth', "What is the major advantage of using Incremental Model?"),
-  createData('Milky Way', 'Mars', "The spiral model was originally proposed by"),
-  createData('Milky Way', 'Jupiter', "The spiral model has two dimensions namely _____________ and ____________"),
-  createData('Milky Way', 'Saturn', "How is WINWIN Spiral Model different from Spiral Model?"),
-  createData('Milky Way', 'Uranus', "Identify the disadvantage of Spiral Model.")
-];
+function createData(galaxy, planet, question, difficulty) {
+  return { galaxy: dictOfGalaxy[galaxy-1], planet: dictOfPlanet[planet-1], question, difficulty };
+}
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -120,23 +94,38 @@ export default function ViewQuestions() {
   
   useEffect(() => {
     setAppState({ loading: true });
-    const apiUrl = 'http://localhost:3000/allQuestions';
-    axios.get(apiUrl).then((allQuestions) => {
-      const allData = allQuestions.data;
+    axios.get('/allQuestions').then((allQuestions) => {
+      const allData = allQuestions.data.questions;
       setAppState({ loading: false, allQuestions: allData });
     });
   }, [setAppState]);
-  console.log(appState);
 
+  const rows = [];
+  appState.allQuestions && appState.allQuestions.forEach(question => rows.push(createData(question.Galaxy, question.Planet, question.Question, question.Difficulty)));
 
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
   const [checked, setChecked] = React.useState(true);
+  const [question, setQuestion] = React.useState({});
+  const [inputState, setInput] = React.useState({
+    Galaxy: 1,
+    Planet: 1,
+    Question: "",
+    Option1: "",
+    Option2: "",
+    Option3: "",
+    Option4: ""
+  });
+  const [sameData, setSameData] = React.useState(true);
 
   const handleChange = (event) => {
-    setChecked(event.target.checked);
+    const value = event.target.value;
+    setInput({
+      ...inputState,
+      [event.target.name]: value
+    });
+    setSameData(checkSame());
   };
 
   const handleChangePage = (event, newPage) => {
@@ -166,18 +155,49 @@ export default function ViewQuestions() {
   // Edit dialog
   const [EditOpen, setEditOpen] = React.useState(false);
 
-  const toggleEditModal = () => {
+  const toggleEditModal = (index) => {
+    const allQuestions = appState.allQuestions;
+    Object.assign(question, allQuestions[index]);
+    const newObj = {
+      Galaxy: question.Galaxy,
+      Planet: question.Planet,
+      Question: question.Galaxy,
+      Option1: question.Options[1],
+      Option2: question.Options[2],
+      Option3: question.Options[3],
+      Option4: question.Options[4]
+    }
+    Object.assign(inputState, newObj);
+
+    setInput({
+      inputState
+    });
+
     setEditOpen(true);
   };
 
   const handleEditOk = () => {
     //TODO: Update DB question 
+    console.log(inputState);
     setEditOpen(false);
   };
 
   const handleEditCancel = () => {
       setEditOpen(false);
   };
+
+  const checkSame = () => {
+    console.log(question.Question);
+    console.log(inputState.Question);
+    if(question.Galaxy !== inputState.Galaxy) return false;
+    if(question.Planet !== inputState.Planet) return false;
+    if(question.Question !== inputState.Question) return false;
+    if(question.Options[1] !== inputState.Option1) return false;
+    if(question.Options[2] !== inputState.Option2) return false;
+    if(question.Options[3] !== inputState.Option3) return false;
+    if(question.Options[4] !== inputState.Option4) return false;
+    return true; 
+  }
 
   return (
     <div className={classes.root}>
@@ -264,7 +284,8 @@ export default function ViewQuestions() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+              {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+                const realIndex = index + page * rowsPerPage;
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
                     {columns.map((column) => {
@@ -275,48 +296,51 @@ export default function ViewQuestions() {
                         </TableCell>
                       );
                     })}
-                    <IconButton onClick={toggleEditModal}>
+                    <IconButton onClick={() => toggleEditModal(realIndex)}>
                       <EditIcon />
                     </IconButton>
                     <Dialog open={EditOpen} onClose={handleEditCancel} aria-labelledby="form-dialog-title" maxWidth='xl'>
                         <DialogTitle id="form-dialog-title" color='primary'>Edit Question</DialogTitle>
                         <DialogContent>
                         <form className={classes.root} noValidate autoComplete="off">
-                          <TextField id="standard-basic" label="Galaxy" required="true" style = {{width: '45%'}}/>
-                          <TextField id="standard-basic" label="Planet" required="true" style = {{width: '45%'}}/>
-                          <TextField id="standard-basic" label="Quiz Question" fullWidth="true" required="true" style = {{width: '91%'}}/>
+                          <TextField name = "Galaxy" id="standard-basic" label="Galaxy" required="true" style = {{width: '45%'}} defaultValue={dictOfGalaxy[question.Galaxy-1]} onChange={handleChange}/>
+                          <TextField name = "Planet" id="standard-basic" label="Planet" required="true" style = {{width: '45%'}} defaultValue={dictOfPlanet[question.Planet-1]} onChange={handleChange}/>
+                          <TextField name = "Question" id="standard-basic" label="Quiz Question" fullWidth="true" required="true" style = {{width: '91%'}} defaultValue={question.Question} onChange={handleChange}/>
                           <Typography variant="h7" >
                           <br></br> {"     "}Select the Checkbox with the correct option:
                           </Typography>
                           <div className={classes.check} >
 
                           <Checkbox
-                            defaultChecked
+                            defaultChecked = {question.CorrectAns == 1}
                             color="primary"
                             inputProps={{ 'aria-label': 'secondary checkbox' }}
                           />
-                          <TextField id="standard-basic" label="Option 1" required="true" style = {{width: '90%'}}/>
+                          <TextField name = "Option1" id="standard-basic" label="Option 1" required="true" style = {{width: '90%'}} defaultValue={question.Options && question.Options[1]} onChange={handleChange}/>
                           </div>
                           <div className={classes.check} >
                           <Checkbox
+                            defaultChecked = {question.CorrectAns == 2}
                             color="primary"
                             inputProps={{ 'aria-label': 'secondary checkbox' }}
                           />
-                          <TextField id="standard-basic" label="Option 2" required="true" style = {{width: '90%'}}/>
+                          <TextField name = "Option2" id="standard-basic" label="Option 2" required="true" style = {{width: '90%'}} defaultValue={question.Options && question.Options[2]} onChange={handleChange}/>
                           </div>
                           <div className={classes.check} >
                           <Checkbox
+                            defaultChecked = {question.CorrectAns == 3}
                             color="primary"
                             inputProps={{ 'aria-label': 'secondary checkbox' }}
                           />
-                          <TextField id="standard-basic" label="Option 3" required="true" style = {{width: '90%'}}/>
+                          <TextField name = "Option3" id="standard-basic" label="Option 3" required="true" style = {{width: '90%'}} defaultValue={question.Options && question.Options[3]} onChange={handleChange}/>
                           </div>
                           <div className={classes.check} >
                           <Checkbox
+                            defaultChecked = {question.CorrectAns == 4}
                             color="primary"
                             inputProps={{ 'aria-label': 'secondary checkbox' }}
                           />
-                          <TextField id="standard-basic" label="Option 4" required="true" style = {{width: '90%'}}/>
+                          <TextField name = "Option4" id="standard-basic" label="Option 4" required="true" style = {{width: '90%'}} defaultValue={question.Options && question.Options[4]} onChange={handleChange}/>
                           </div>
                         </form>
                         </DialogContent>
@@ -324,7 +348,7 @@ export default function ViewQuestions() {
                           <Button onClick={handleEditCancel} color="primary">
                             Cancel
                           </Button>
-                          <Button onClick={handleEditOk} color="primary">
+                          <Button onClick={handleEditOk} color="primary" disabled={sameData}>
                             Update Quiz
                           </Button>
                         </DialogActions>
@@ -351,4 +375,3 @@ export default function ViewQuestions() {
     </div>
   );
 }
-
