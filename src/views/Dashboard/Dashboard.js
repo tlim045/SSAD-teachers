@@ -51,16 +51,6 @@ const useStyles = makeStyles({
   }
 });
 
-function renderRow(props) {
-  const { index, style } = props;
-
-  return (
-    <ListItem button style={style} key={index} component={Link} to="/admin/lab/BCG3">
-      <ListItemText primary={`Item ${index + 1}`} />
-    </ListItem>
-  );
-}
-
 renderRow.propTypes = {
   index: PropTypes.number.isRequired,
   style: PropTypes.object.isRequired,
@@ -75,7 +65,7 @@ const columns = [
   
 ];
 const rows = [
-  createData('Michael Scott', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
+  createData('Michael Scott', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934), // TODO: Remove after linking to individual student dashboard
 ];
 
 function createData(name, email, lab, level, score) {
@@ -84,15 +74,31 @@ function createData(name, email, lab, level, score) {
 }
 
 
+const labs = [
+  'Lab group 1'
+];
+// TODO: debug syncing issue
+function renderRow(props) {
+  const { index, style } = props;
+  console.log("RENDER ROW IS CALLED !");
+  console.log(labs);
+  return (
+    <ListItem button style={style} component={Link} to="/admin/lab/BCG3">
+      <ListItemText primary={labs[index]} />
+    </ListItem>
+  );
+}
+
 export default function Dashboard() {
 
   const [data, setData] = useState(undefined);
 
   useEffect(() => {
     const apiUrl = 'http://localhost:3000/getAllStudents';
+    //rows.length = 0; add this after removing Michael Scott
     axios.get(apiUrl).then((allStudents) => {
-      console.log(allStudents.data.StudentList);
-      console.log(rows);
+      //console.log(allStudents.data.StudentList);
+      //console.log(rows);
       for ( var i = 0; i < allStudents.data.StudentList.length; i++ ){
        rows.push(createData(allStudents.data.StudentList[i].Username,'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934));}
       const allData = allStudents.data;
@@ -100,7 +106,23 @@ export default function Dashboard() {
     });
   }, [setData]);
 
-  console.log(data);
+  //console.log(data);
+  const [data2, setData2] = useState(undefined);
+
+  useEffect(() => {
+    const apiUrl = 'http://localhost:3000/getAllLabGroups';
+    labs.length = 0;
+    axios.get(apiUrl).then((allLabs) => {
+      console.log(allLabs.data.LabGroupList);
+      for ( var i = 0; i < allLabs.data.LabGroupList.length; i++ ){
+        //console.log(allLabs.data.LabGroupList[i]);
+       labs.push(allLabs.data.LabGroupList[i]);}
+      const allDataLab = allLabs.data;
+      setData({allLabs: allDataLab});
+    });
+  }, [setData2]);
+
+  console.log(labs);
 
   const classes = useStyles();
 
