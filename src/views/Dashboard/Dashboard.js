@@ -1,4 +1,5 @@
-  import React from "react";
+import React, {useState,Fragment, useEffect} from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 // @material-ui/core
 import { makeStyles } from "@material-ui/core/styles";
@@ -73,28 +74,34 @@ const columns = [
   { id: 'score', label: 'Total Score', minWidth: 100 },
   
 ];
+const rows = [
+  createData('Michael Scott', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
+];
 
 function createData(name, email, lab, level, score) {
   //calculate score here?
   return { name, email, lab, level, score };
 }
 
-const rows = [
-  createData('Michael Scott', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-  createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-  createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-  createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-  createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-  createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-  createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-  createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-  createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-  createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-  createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934)
-
-];
 
 export default function Dashboard() {
+
+  const [data, setData] = useState(undefined);
+
+  useEffect(() => {
+    const apiUrl = 'http://localhost:3000/allStudents';
+    axios.get(apiUrl).then((allStudents) => {
+      console.log(allStudents.data.StudentList);
+      console.log(rows);
+      for ( var i = 0; i < allStudents.data.StudentList.length; i++ ){
+       rows.push(createData(allStudents.data.StudentList[i].Username,'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934));}
+      const allData = allStudents.data;
+      setData({allStudents: allData});
+    });
+  }, [setData]);
+
+  console.log(data);
+
   const classes = useStyles();
 
   const [page, setPage] = React.useState(0);
@@ -109,13 +116,14 @@ export default function Dashboard() {
     setPage(0);
   };
   return (
+
     <div>
       <GridContainer>
       <Card>
           <CardHeader color="info">
             <h4 className={classes.cardTitleWhite}>All Students</h4>
             <p className={classes.cardCategoryWhite}>
-              All students taking module CZ3003
+              All students taking module CZ3003 
             </p>
           </CardHeader>
           <CardBody>
