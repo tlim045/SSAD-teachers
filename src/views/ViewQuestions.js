@@ -1,4 +1,5 @@
-import React, {useState,Fragment} from 'react';
+import React, {useState,Fragment, useEffect} from 'react';
+import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -30,7 +31,28 @@ const columns = [
 
 function createData(galaxy, planet, question) {
   return { galaxy, planet, question };
-}
+};
+
+// Method 1 data retrieval
+// var request = require('request');
+
+// var url = 'http://localhost:3000/allQuestions';
+
+// request.get({
+//     url: url,
+//     json: true,
+//     headers: {'User-Agent': 'request'}
+//   }, (err, res, data) => {
+//     if (err) {
+//       console.log('Error:', err);
+//     } else if (res.statusCode !== 200) {
+//       console.log('Status:', res.statusCode);
+//     } else {
+//       // data is already parsed as JSON:
+//       console.log(data.questions);
+//     }
+// });
+
 
 const rows = [
   createData('Milky Way', 'Mecurry', 'Which one of the following is not an Evolutionary Process Model?'),
@@ -89,8 +111,24 @@ const useStyles = makeStyles((theme) => ({
     flex:5
   },
 }));
-
+// Testing of data retrieval 
 export default function ViewQuestions() {
+  const [appState, setAppState] = useState({
+    loading: false,
+    repos: null,
+  });
+  
+  useEffect(() => {
+    setAppState({ loading: true });
+    const apiUrl = 'http://localhost:3000/allQuestions';
+    axios.get(apiUrl).then((allQuestions) => {
+      const allData = allQuestions.data;
+      setAppState({ loading: false, allQuestions: allData });
+    });
+  }, [setAppState]);
+  console.log(appState);
+
+
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
