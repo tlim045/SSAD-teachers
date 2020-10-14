@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from 'react-router-dom';
 // @material-ui/core
 import { makeStyles } from "@material-ui/core/styles";
+import { TwitterShareButton, TwitterIcon } from "react-share";
 
 // core components
 import GridItem from "components/Grid/GridItem.js";
@@ -38,20 +39,22 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
 
+import axios from 'axios';
+axios.defaults.baseURL = "http://localhost:3000/";
 
-function createData(galaxy, planet, question) {
-  return { galaxy, planet, question };
-}
 
-const rows = [
-  createData('Milky Way', 'Mecurry', 'Which one of the following is not an Evolutionary Process Model?'),
-  createData('Milky Way1', 'Venus', "The Incremental Model is a result of combination of elements of which two models?"),
-  createData('Milky Way2', 'Earth', "What is the major advantage of using Incremental Model?"),
-  createData('Milky Way3', 'Mars', "The spiral model was originally proposed by"),
-  createData('Milky Way4', 'Jupiter', "The spiral model has two dimensions namely _____________ and ____________"),
-  createData('Milky Way5', 'Saturn', "How is WINWIN Spiral Model different from Spiral Model?"),
-  createData('Milky Way6', 'Uranus', "Identify the disadvantage of Spiral Model.")
+const headCells = [
+  { id: 'galaxy', numeric: false, disablePadding: true, label: 'Galaxy', minWidth: 100 },
+  { id: 'planet', numeric: false, disablePadding: false, label: 'Planet', minWidth: 100 },
+  { id: 'question', numeric: false, disablePadding: false, label: 'Question', minWidth: 100 }
 ];
+
+const dictOfGalaxy = ["Planning and Definning"];
+const dictOfPlanet = ["Decomposition Techniques", "Estimation tools", "Size and Cost Estimation of Software"];
+
+function createData(galaxy, planet, question, difficulty) {
+  return { galaxy: dictOfGalaxy[galaxy-1], planet: dictOfPlanet[planet-1], question, difficulty };
+}
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -77,12 +80,6 @@ function stableSort(array, comparator) {
   });
   return stabilizedThis.map((el) => el[0]);
 }
-
-const headCells = [
-  { id: 'Galaxy', numeric: false, disablePadding: true, label: 'Galaxy' },
-  { id: 'Planet', numeric: false, disablePadding: false, label: 'Planet' },
-  { id: 'Question', numeric: false, disablePadding: false, label: 'Question' },
-];
 
 function EnhancedTableHead(props) {
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -163,7 +160,7 @@ const EnhancedTableToolbar = (props) => {
   return (
     <Toolbar>
     <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-      Select 9 Questions
+      Select 10 Questions
     </Typography>
 
     </Toolbar>
@@ -200,6 +197,26 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SendAssignment() {
   // table
+  const [appState, setAppState] = React.useState({
+    loading: false,
+    repos: null,
+  });
+
+  const [updated, setUpdate] = React.useState(true);
+
+  React.useEffect(() => {
+    setAppState({ loading: true });
+    axios.get('/allQuestions').then((allQuestions) => {
+      const allData = allQuestions.data.questions;
+      setAppState({ loading: false, allQuestions: allData });
+    });
+    setUpdate(false);
+  }, [setAppState, updated]);
+
+  const rows = [];
+  appState.allQuestions && appState.allQuestions.forEach(question => rows.push(createData(question.Galaxy, question.Planet, question.Question, question.Difficulty)));
+
+  console.log(rows);
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
   const [selected, setSelected] = React.useState([]);
@@ -260,10 +277,15 @@ export default function SendAssignment() {
 
   // text field
   const [TextValue, setTextValue] = React.useState('');
+  const [Title, setTitle] = React.useState('');
 
   const handleTextChange = (event) => {
     setTextValue(event.target.value);
   };
+
+  const handleChangeTitle = (event) => {
+    setTitle(event.target.value);
+  }
 
   return (
     <div>
@@ -313,6 +335,7 @@ export default function SendAssignment() {
                   type="title" 
                   variant="outlined" 
                   fullWidth="true"
+                  onChange={handleChangeTitle}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -393,9 +416,16 @@ export default function SendAssignment() {
               </Paper>
 
               <Grid item xs={12}>
-              <Button variant="contained" color="primary" fullWidth="true">
-                Submit
-              </Button>
+              <div>
+                <TwitterShareButton
+                  title={`Assignment: ${Title}.` + '\n' + `${TextValue}`}
+                  
+                  url="https://stackoverflow.com/"
+                >
+                  <TwitterIcon size={32} round />
+                </TwitterShareButton>
+              </div>
+
               </Grid>
             </CardBody>
           </Card>

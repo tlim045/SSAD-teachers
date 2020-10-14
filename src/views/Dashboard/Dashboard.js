@@ -100,7 +100,7 @@ export default function Dashboard() {
       //console.log(allStudents.data.StudentList);
       //console.log(rows);
       for ( var i = 0; i < allStudents.data.StudentList.length; i++ ){
-       rows.push(createData(allStudents.data.StudentList[i].Username,'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934));}
+       rows.push(createData(allStudents.data.StudentList[i].Username,'student1@e.ntu.edu.sg', 'F1', 'Galaxy 1 Planet 2', 200));}
       const allData = allStudents.data;
       setData({allStudents: allData});
     });

@@ -1,4 +1,4 @@
-import React, {useState,Fragment, useEffect} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -32,7 +32,7 @@ const columns = [
 ];
 
 const dictOfGalaxy = ["Planning and Definning"];
-const dictOfPlanet = ["Decomposition Techniques", "Estimation tools"];
+const dictOfPlanet = ["Decomposition Techniques", "Estimation tools", "Size and Cost Estimation of Software"];
 
 function createData(galaxy, planet, question, difficulty) {
   return { galaxy: dictOfGalaxy[galaxy-1], planet: dictOfPlanet[planet-1], question, difficulty };
@@ -91,14 +91,17 @@ export default function ViewQuestions() {
     loading: false,
     repos: null,
   });
-  
+
+  const [updated, setUpdate] = useState(true);
+
   useEffect(() => {
     setAppState({ loading: true });
     axios.get('/allQuestions').then((allQuestions) => {
       const allData = allQuestions.data.questions;
       setAppState({ loading: false, allQuestions: allData });
     });
-  }, [setAppState]);
+    setUpdate(false);
+  }, [setAppState, updated]);
 
   const rows = [];
   appState.allQuestions && appState.allQuestions.forEach(question => rows.push(createData(question.Galaxy, question.Planet, question.Question, question.Difficulty)));
@@ -106,26 +109,27 @@ export default function ViewQuestions() {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [checked, setChecked] = React.useState(true);
   const [question, setQuestion] = React.useState({});
-  const [inputState, setInput] = React.useState({
-    Galaxy: 1,
-    Planet: 1,
-    Question: "",
-    Option1: "",
-    Option2: "",
-    Option3: "",
-    Option4: ""
-  });
-  const [sameData, setSameData] = React.useState(true);
+  const [inputState, setInput] = React.useState({});
 
   const handleChange = (event) => {
-    const value = event.target.value;
-    setInput({
-      ...inputState,
-      [event.target.name]: value
-    });
-    setSameData(checkSame());
+    switch(event.target.name){
+      case "OptionA":
+        inputState.inputState.Options.A = event.target.value;
+        break;
+      case "OptionB":
+        inputState.inputState.Options.B = event.target.value;
+        break;
+      case "OptionC":
+        inputState.inputState.Options.C = event.target.value;
+        break;
+      case "OptionD":
+        inputState.inputState.Options.D = event.target.value;
+        break;
+      default:
+        inputState.inputState[event.target.name] = event.target.value;
+        break;
+    }
   };
 
   const handleChangePage = (event, newPage) => {
@@ -141,11 +145,34 @@ export default function ViewQuestions() {
   const [AddOpen, setAddOpen] = React.useState(false);
 
   const toggleAddModal = () => {
+    const newObj = {
+      Galaxy: 1,
+      Planet: 1,
+      Question: "",
+      Type: "MCQ",
+      Options: {
+        "A": "",
+        "B": "",
+        "C": "",
+        "D": ""
+      },
+      CorrectAns: "A",
+      Difficulty: "Easy"
+    }
+    Object.assign(inputState, newObj);
+    setInput({
+      inputState
+    });
     setAddOpen(true);
   };
 
   const handleAddOk = () => {
     //TODO: Update DB question 
+    const data = { body: {...inputState.inputState} };
+    axios.post('/createQuestion', data)
+    .then(res => console.log(res))
+    .catch(err => console.log(err));
+    setUpdate(true);
     setAddOpen(false);
   };
 
@@ -158,16 +185,7 @@ export default function ViewQuestions() {
   const toggleEditModal = (index) => {
     const allQuestions = appState.allQuestions;
     Object.assign(question, allQuestions[index]);
-    const newObj = {
-      Galaxy: question.Galaxy,
-      Planet: question.Planet,
-      Question: question.Galaxy,
-      Option1: question.Options[1],
-      Option2: question.Options[2],
-      Option3: question.Options[3],
-      Option4: question.Options[4]
-    }
-    Object.assign(inputState, newObj);
+    Object.assign(inputState, question);
 
     setInput({
       inputState
@@ -176,27 +194,46 @@ export default function ViewQuestions() {
     setEditOpen(true);
   };
 
+  const [DeleteOpen, setDeleteOpen] = React.useState(false);
+
+  const toggleDeleteModal = () => {
+    setDeleteOpen(true);
+  }
+
+  const handleDeleteCancel = () => {
+    setDeleteOpen(false);
+  }
+
+  const handleDeleteOk = (index) => {
+    const { QuestionID } = appState.allQuestions[index];
+    axios.delete(`/question/${QuestionID}`)
+    .then(res => console.log(res))
+    .catch(err => console.log(err));
+    setDeleteOpen(false);
+    setUpdate(true);
+  }
+
   const handleEditOk = () => {
     //TODO: Update DB question 
     console.log(inputState);
+    const data = { body: {...inputState.inputState} };
+    axios.patch(`/question/${inputState.inputState.QuestionID}`, data)
+    .then(res => console.log(res))
+    .catch(err => console.log(err));
     setEditOpen(false);
+    setUpdate(true);
   };
 
   const handleEditCancel = () => {
       setEditOpen(false);
   };
 
-  const checkSame = () => {
-    console.log(question.Question);
-    console.log(inputState.Question);
-    if(question.Galaxy !== inputState.Galaxy) return false;
-    if(question.Planet !== inputState.Planet) return false;
-    if(question.Question !== inputState.Question) return false;
-    if(question.Options[1] !== inputState.Option1) return false;
-    if(question.Options[2] !== inputState.Option2) return false;
-    if(question.Options[3] !== inputState.Option3) return false;
-    if(question.Options[4] !== inputState.Option4) return false;
-    return true; 
+  const checkAns = (event) => {
+    const isChecked = event.target.checked;
+    console.log(isChecked);
+    if(isChecked){
+      inputState.inputState.CorrectAns = event.target.name;
+    }
   }
 
   return (
@@ -210,40 +247,49 @@ export default function ViewQuestions() {
                         <DialogTitle id="form-dialog-title" color='primary'>Add Question</DialogTitle>
                         <DialogContent>
                         <form className={classes.root} noValidate autoComplete="off">
-                          <TextField id="standard-basic" label="Galaxy" required="true" style = {{width: '45%'}}/>
-                          <TextField id="standard-basic" label="Planet" required="true" style = {{width: '45%'}}/>
-                          <TextField id="standard-basic" label="Quiz Question" fullWidth="true" required="true" style = {{width: '93%'}}/>
+                          <TextField name = "Galaxy" type="number" id="standard-basic" label="Galaxy" required="true" style = {{width: '45%'}} onChange={handleChange}/>
+                          <TextField name = "Planet" type="number" id="standard-basic" label="Planet" required="true" style = {{width: '45%'}} onChange={handleChange}/>
+                          <TextField name = "Question" id="standard-basic" label="Quiz Question" fullWidth="true" required="true" style = {{width: '91%'}} onChange={handleChange}/>
+                          <TextField name = "Difficulty" id="standard-basic" label="Difficulty" required="true" style = {{width: '45%'}} onChange={handleChange}/>
                           <Typography variant="h7" >
-                              Select the Checkbox with the correct option:
+                          <br></br> {"     "}Select the Checkbox with the correct option:
                           </Typography>
                           <div className={classes.check} >
                           <Checkbox
                             defaultChecked
                             color="primary"
                             inputProps={{ 'aria-label': 'secondary checkbox' }}
+                            name="A"
+                            onChange={checkAns}
                           />
-                          <TextField id="standard-basic" label="Option 1" required="true" style = {{width: '90%'}}/>
+                          <TextField id="standard-basic" label="Option 1" required="true" style = {{width: '90%'}} name = "OptionA" onChange={handleChange}/>
                           </div>
                           <div className={classes.check} >
                           <Checkbox
                             color="primary"
                             inputProps={{ 'aria-label': 'secondary checkbox' }}
+                            name="B"
+                            onChange={checkAns}
                           />
-                          <TextField id="standard-basic" label="Option 2" required="true" style = {{width: '90%'}}/>
+                          <TextField id="standard-basic" label="Option 2" required="true" style = {{width: '90%'}} name = "OptionB" onChange={handleChange}/>
                           </div>
                           <div className={classes.check} >
                           <Checkbox
                             color="primary"
                             inputProps={{ 'aria-label': 'secondary checkbox' }}
+                            name="C"
+                            onChange={checkAns}
                           />
-                          <TextField id="standard-basic" label="Option 3" required="true" style = {{width: '90%'}}/>
+                          <TextField id="standard-basic" label="Option 3" required="true" style = {{width: '90%'}} name = "OptionC" onChange={handleChange}/>
                           </div>
                           <div className={classes.check} >
                           <Checkbox
                             color="primary"
                             inputProps={{ 'aria-label': 'secondary checkbox' }}
+                            name="D"
+                            onChange={checkAns}
                           />
-                          <TextField id="standard-basic" label="Option 4" required="true" style = {{width: '90%'}}/>
+                          <TextField id="standard-basic" label="Option 4" required="true" style = {{width: '90%'}} name = "OptionD" onChange={handleChange}/>
                           </div>
 
                         </form>
@@ -306,41 +352,50 @@ export default function ViewQuestions() {
                           <TextField name = "Galaxy" id="standard-basic" label="Galaxy" required="true" style = {{width: '45%'}} defaultValue={dictOfGalaxy[question.Galaxy-1]} onChange={handleChange}/>
                           <TextField name = "Planet" id="standard-basic" label="Planet" required="true" style = {{width: '45%'}} defaultValue={dictOfPlanet[question.Planet-1]} onChange={handleChange}/>
                           <TextField name = "Question" id="standard-basic" label="Quiz Question" fullWidth="true" required="true" style = {{width: '91%'}} defaultValue={question.Question} onChange={handleChange}/>
+                          <TextField name = "Difficulty" id="standard-basic" label="Difficulty" required="true" style = {{width: '45%'}} defaultValue={question.Difficulty} onChange={handleChange}/>
                           <Typography variant="h7" >
                           <br></br> {"     "}Select the Checkbox with the correct option:
                           </Typography>
                           <div className={classes.check} >
 
                           <Checkbox
-                            defaultChecked = {question.CorrectAns == 1}
+                            defaultChecked = {question.CorrectAns === "A"}
                             color="primary"
                             inputProps={{ 'aria-label': 'secondary checkbox' }}
+                            name="A"
+                            onChange={checkAns}
                           />
-                          <TextField name = "Option1" id="standard-basic" label="Option 1" required="true" style = {{width: '90%'}} defaultValue={question.Options && question.Options[1]} onChange={handleChange}/>
+                          <TextField name = "OptionA" id="standard-basic" label="Option 1" required="true" style = {{width: '90%'}} defaultValue={question.Options && question.Options.A} onChange={handleChange}/>
                           </div>
                           <div className={classes.check} >
                           <Checkbox
-                            defaultChecked = {question.CorrectAns == 2}
+                            defaultChecked = {question.CorrectAns === "B"}
                             color="primary"
                             inputProps={{ 'aria-label': 'secondary checkbox' }}
+                            name="B"
+                            onChange={checkAns}
                           />
-                          <TextField name = "Option2" id="standard-basic" label="Option 2" required="true" style = {{width: '90%'}} defaultValue={question.Options && question.Options[2]} onChange={handleChange}/>
+                          <TextField name = "OptionB" id="standard-basic" label="Option 2" required="true" style = {{width: '90%'}} defaultValue={question.Options && question.Options.B} onChange={handleChange}/>
                           </div>
                           <div className={classes.check} >
                           <Checkbox
-                            defaultChecked = {question.CorrectAns == 3}
+                            defaultChecked = {question.CorrectAns === "C"}
                             color="primary"
                             inputProps={{ 'aria-label': 'secondary checkbox' }}
+                            name="C"
+                            onChange={checkAns}
                           />
-                          <TextField name = "Option3" id="standard-basic" label="Option 3" required="true" style = {{width: '90%'}} defaultValue={question.Options && question.Options[3]} onChange={handleChange}/>
+                          <TextField name = "OptionC" id="standard-basic" label="Option 3" required="true" style = {{width: '90%'}} defaultValue={question.Options && question.Options.C} onChange={handleChange}/>
                           </div>
                           <div className={classes.check} >
                           <Checkbox
-                            defaultChecked = {question.CorrectAns == 4}
+                            defaultChecked = {question.CorrectAns === "D"}
                             color="primary"
                             inputProps={{ 'aria-label': 'secondary checkbox' }}
+                            name="D"
+                            onChange={checkAns}
                           />
-                          <TextField name = "Option4" id="standard-basic" label="Option 4" required="true" style = {{width: '90%'}} defaultValue={question.Options && question.Options[4]} onChange={handleChange}/>
+                          <TextField name = "OptionD" id="standard-basic" label="Option 4" required="true" style = {{width: '90%'}} defaultValue={question.Options && question.Options.D} onChange={handleChange}/>
                           </div>
                         </form>
                         </DialogContent>
@@ -348,14 +403,26 @@ export default function ViewQuestions() {
                           <Button onClick={handleEditCancel} color="primary">
                             Cancel
                           </Button>
-                          <Button onClick={handleEditOk} color="primary" disabled={sameData}>
+                          <Button onClick={handleEditOk} color="primary">
                             Update Quiz
                           </Button>
                         </DialogActions>
                       </Dialog>
-                    <IconButton>
+                    <IconButton onClick={toggleDeleteModal}>
                       <DeleteIcon/>
                     </IconButton>
+                    <Dialog open={DeleteOpen} onClose={handleDeleteCancel} aria-labelledby="form-dialog-title" maxWidth='xl'>
+                      <DialogTitle id="form-dialog-title" color='primary'>Delete Question</DialogTitle>
+                      <DialogContent>Are you sure you want to delete this question?</DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleDeleteCancel} color="primary">
+                          Cancel
+                        </Button>
+                        <Button onClick={() => handleDeleteOk(realIndex)} color="primary">
+                          Delete
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
                   </TableRow>
                 );
               })}
