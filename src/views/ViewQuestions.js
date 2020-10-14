@@ -31,7 +31,7 @@ const columns = [
   { id: 'question', label: 'Question', minWidth: 100 }
 ];
 
-const dictOfGalaxy = ["Planning and Definning"];
+const dictOfGalaxy = ["Planning and Defining", "Design", "Implementation", "Testing and Maintainance"];
 const dictOfPlanet = ["Decomposition Techniques", "Estimation tools", "Size and Cost Estimation of Software"];
 
 function createData(galaxy, planet, question, difficulty) {

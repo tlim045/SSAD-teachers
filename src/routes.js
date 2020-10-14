@@ -41,7 +41,7 @@ const dashboardRoutes = [
   },
   {
     path: "/createAccounts",
-    name: "Create Student's Account",
+    name: "Create Account",
     icon: CreateNewFolderIcon,
     component: CreateStudentAccount,
     layout: "/admin"

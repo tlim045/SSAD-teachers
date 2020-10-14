@@ -58,19 +58,21 @@ renderRow.propTypes = {
 // table
 const columns = [
   { id: 'name', label: 'Name', minWidth: 170, type: 'link' },
-  { id: 'email', label: 'Email', minWidth: 100 },
-  { id: 'lab', label: 'Lab Group', minWidth: 100 },
-  { id: 'level', label: 'Current level', minWidth: 100 },
+  // { id: 'email', label: 'Email', minWidth: 100 },
+  // { id: 'lab', label: 'Lab Group', minWidth: 100 },
+  // { id: 'level', label: 'Current level', minWidth: 100 },
   { id: 'score', label: 'Total Score', minWidth: 100 },
   
 ];
 const rows = [
-  createData('Michael Scott', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934), // TODO: Remove after linking to individual student dashboard
+  // createData('Michael Scott', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934), // TODO: Remove after linking to individual student dashboard
 ];
 
-function createData(name, email, lab, level, score) {
+function createData(name, score) {
   //calculate score here?
-  return { name, email, lab, level, score };
+
+  return { name, score };
+  // return { name, email, lab, score };
 }
 
 
@@ -80,8 +82,6 @@ const labs = [
 // TODO: debug syncing issue
 function renderRow(props) {
   const { index, style } = props;
-  console.log("RENDER ROW IS CALLED !");
-  console.log(labs);
   return (
     <ListItem button style={style} component={Link} to="/admin/lab/BCG3">
       <ListItemText primary={labs[index]} />
@@ -92,16 +92,18 @@ function renderRow(props) {
 export default function Dashboard() {
 
   const [data, setData] = useState(undefined);
+  const [] = useState();
+
 
   useEffect(() => {
     const apiUrl = 'http://localhost:3000/getAllStudents';
-    //rows.length = 0; add this after removing Michael Scott
     axios.get(apiUrl).then((allStudents) => {
-      //console.log(allStudents.data.StudentList);
-      //console.log(rows);
       for ( var i = 0; i < allStudents.data.StudentList.length; i++ ){
-       rows.push(createData(allStudents.data.StudentList[i].Username,'student1@e.ntu.edu.sg', 'F1', 'Galaxy 1 Planet 2', 200));}
-      const allData = allStudents.data;
+        const data = allStudents.data.StudentList[i];
+      //  rows.push(createData(data.Username, data.Email, data.LabGroup, 200));
+        rows.push(createData(data.Username, data.Score));
+      }
+      const allData = allStudents.data.StudentList.sort((a, b) => parseFloat(b.Score) - parseFloat(a.Score));
       setData({allStudents: allData});
     });
   }, [setData]);
@@ -113,7 +115,6 @@ export default function Dashboard() {
     const apiUrl = 'http://localhost:3000/getAllLabGroups';
     labs.length = 0;
     axios.get(apiUrl).then((allLabs) => {
-      console.log(allLabs.data.LabGroupList);
       for ( var i = 0; i < allLabs.data.LabGroupList.length; i++ ){
         //console.log(allLabs.data.LabGroupList[i]);
        labs.push(allLabs.data.LabGroupList[i]);}
@@ -121,8 +122,6 @@ export default function Dashboard() {
       setData({allLabs: allDataLab});
     });
   }, [setData2]);
-
-  console.log(labs);
 
   const classes = useStyles();
 
@@ -226,10 +225,10 @@ export default function Dashboard() {
               viewBoxSize={[100,100]}
               data={[
                 //TODO: Hardcoded values for now, extract from DB
-                { title: 'Galaxy1', value: 80, color: '#ff9800',galaxy: 'student'},
-                { title: 'Galaxy2', value: 60, color: '#f44336'},
-                { title: 'Galaxy3', value: 40, color: '#4caf50'},
-                { title: 'Galaxy4', value: 25, color: '#00acc1'},
+                { title: 'Planning and Defining', value: 80, color: '#ff9800',galaxy: 'student'},
+                { title: 'Design', value: 25, color: '#f44336'},
+                { title: 'Implementation', value: 40, color: '#4caf50'},
+                { title: 'Testing and Maintainance', value: 60, color: '#00acc1'},
               ]}
               label={({ dataEntry }) => dataEntry.title}
               labelStyle={{
