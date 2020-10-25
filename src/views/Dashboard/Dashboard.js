@@ -51,10 +51,6 @@ const useStyles = makeStyles({
   }
 });
 
-renderRow.propTypes = {
-  index: PropTypes.number.isRequired,
-  style: PropTypes.object.isRequired,
-};
 // table
 const columns = [
   { id: 'name', label: 'Name', minWidth: 170, type: 'link' },
@@ -76,19 +72,6 @@ function createData(name, score) {
 }
 
 
-const labs = [
-  'Lab group 1'
-];
-// TODO: debug syncing issue
-function renderRow(props) {
-  const { index, style } = props;
-  return (
-    <ListItem button style={style} component={Link} to="/admin/lab/BCG3">
-      <ListItemText primary={labs[index]} />
-    </ListItem>
-  );
-}
-
 export default function Dashboard() {
 
   const [data, setData] = useState(undefined);
@@ -109,19 +92,27 @@ export default function Dashboard() {
   }, [setData]);
 
   //console.log(data);
-  const [data2, setData2] = useState(undefined);
+  const [allLabs, setData2] = useState([]);
 
   useEffect(() => {
     const apiUrl = 'http://localhost:3000/getAllLabGroups';
-    labs.length = 0;
+    const labs = [];
     axios.get(apiUrl).then((allLabs) => {
       for ( var i = 0; i < allLabs.data.LabGroupList.length; i++ ){
-        //console.log(allLabs.data.LabGroupList[i]);
        labs.push(allLabs.data.LabGroupList[i]);}
-      const allDataLab = allLabs.data;
-      setData({allLabs: allDataLab});
+      setData2(labs);
     });
   }, [setData2]);
+
+  const renderRow = (props) => {
+    const { index, style } = props;
+    return (
+      allLabs.length !== 0 &&
+      <ListItem button style={style} component={Link} to={`/admin/lab/${allLabs[index]}`}>
+        <ListItemText primary={allLabs[index]} />
+      </ListItem>
+    );
+  }
 
   const classes = useStyles();
 
@@ -173,7 +164,7 @@ export default function Dashboard() {
                     const value = row[column.id];
                     return (
                       <TableCell key={column.id} align={column.align}>
-                        {column.type === 'link' ? <a href={`/admin/student/${value.replace(' ', '-')}`}>{value}</a>: value}
+                        {column.type === 'link' ? <a href={`/admin/student/${value}`}>{value}</a>: value}
                       </TableCell>
                     );
                   })}

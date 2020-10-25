@@ -55,8 +55,8 @@ const dashboardRoutes = [
     hidden: true
   },
   {
-    path: "/lab/BCG3",
-    name: "BCG3",
+    path: "/lab",
+    name: "Lab group",
     component: LabPage,
     layout: "/admin",
     icon: EditIcon,
