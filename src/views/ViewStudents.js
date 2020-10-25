@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ChartistGraph from "react-chartist";
 import GridItem from "components/Grid/GridItem.js";
@@ -6,6 +6,7 @@ import GridContainer from "components/Grid/GridContainer.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
+import CardAvatar from "components/Card/CardAvatar.js";
 import CardFooter from "components/Card/CardFooter.js";
 import ArrowUpward from "@material-ui/icons/ArrowUpward";
 import AccessTime from "@material-ui/icons/AccessTime";
@@ -21,11 +22,15 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
+import Identicon from 'identicon.js';
+import axios from 'axios';
 import {
     dailySalesChart,
     emailsSubscriptionChart
   } from "./../variables/charts";
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
+
+axios.defaults.baseURL = "http://localhost:3000/";
 
 const columns = [
     { id: 'question', label: 'Question', minWidth: 150, align: 'left' },
@@ -80,7 +85,10 @@ const useStyles = makeStyles((theme) => ({
     },
     container: {
         maxHeight: 440,
-    }
+    },
+    typo: {
+        marginLeft: 14
+    },
 }));
 
 const StyledTableCell = withStyles((theme) => ({
@@ -93,8 +101,43 @@ const StyledTableCell = withStyles((theme) => ({
     },
 }))(TableCell);
 
+function ConvertStringToHex(str) {
+    var arr = [];
+    for (var i = 0; i < str.length; i++) {
+           arr[i] = (str.charCodeAt(i).toString(16)).slice(-4);
+    }
+    return arr.join("");
+}
+
 export default function ViewStudents(){
     const classes = useStyles();
+    const href = window.location.href;
+    const studentName = href.substring(href.lastIndexOf('/') + 1);
+
+    const [studentInfo, setStudentInfo] = React.useState({
+        username: "",
+        fullname: "",
+        labGroup: "",
+        email: "",
+        hexString: ""
+    })
+
+    useEffect(() => {
+        axios.get('/getStudentAccounts').then((allStudents) => {
+            const students = allStudents.data.filter(student => student.Username === studentName);
+            const data = students[0];
+            const student = {
+                username: data.Username,
+                fullname: data.FirstName + " " + data.LastName,
+                labGroup: data.LabGroup,
+                email: data.Email,
+                hexString: ConvertStringToHex(data.Username + data.Email + 
+                                                data.FirstName + " " + data.LastName)
+            }
+            setStudentInfo({ ...student });
+        });
+    });
+
     const [state, setState] = React.useState({
         galaxy: '',
         planet: '',
@@ -118,9 +161,13 @@ export default function ViewStudents(){
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
+
+    // create a base64 encoded PNG
+    var data = studentInfo.hexString.length >15 && new Identicon(studentInfo.hexString, 420).toString();
+
     return <div>
         <GridContainer>
-            <GridItem xs={12} sm={12} md={12}>
+            <GridItem xs={12} sm={12} md={8}>
                 <Card chart>
                     <CardHeader color="success">
                     <ChartistGraph
@@ -145,6 +192,23 @@ export default function ViewStudents(){
                         <AccessTime /> updated 4 minutes ago
                     </div>
                     </CardFooter>
+                </Card>
+            </GridItem>
+            <GridItem xs={12} sm={12} md={4}>
+                <Card profile>
+                    <CardAvatar profile>
+                        <a href="#pablo" onClick={e => e.preventDefault()}>
+                            <img src={`data:image/png;base64,${data}`}/>
+                        </a>
+                    </CardAvatar>
+                    <CardBody profile>
+                        <h4 className={classes.cardTitle}>@{studentName}</h4>
+                        <p>
+                            {studentInfo.fullname} <br/>
+                            Lab group {studentInfo.labGroup} <br/>
+                            {studentInfo.email}
+                        </p>
+                    </CardBody>
                 </Card>
             </GridItem>
         </GridContainer>

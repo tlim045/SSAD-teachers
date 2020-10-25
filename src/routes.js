@@ -47,8 +47,8 @@ const dashboardRoutes = [
     layout: "/admin"
   },
   {
-    path: "/student/Michael-Scott",
-    name: "Michael Scott",
+    path: "/student",
+    name: "Student page",
     component: StudentPage,
     layout: "/admin",
     icon: EditIcon,
