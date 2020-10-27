@@ -9,6 +9,8 @@ import ViewQuestionsPage from "views/ViewQuestions";
 import StudentPage from "views/ViewStudents";
 import LabPage from "views/ViewLabs";
 import CreateStudentAccount from "views/CreateStudentAccount";
+import Logout from '../src/layouts/logout';
+
 
 const dashboardRoutes = [
   {
@@ -63,8 +65,11 @@ const dashboardRoutes = [
     hidden: true
   },
   {
+    path: "/logout",
+    component: Logout,
     name: "Sign Out",
     icon: ExitToAppIcon,
+    layout: "/admin"
   }
 ];
 

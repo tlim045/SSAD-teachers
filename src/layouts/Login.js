@@ -6,7 +6,20 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import { useAuth0 } from '@auth0/auth0-react';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+// const LoginButton = () => {
+//     const { loginWithRedirect } = useAuth0();
 
+//     return(
+//         <button onClick={() => loginWithRedirect()}>
+//             Log In
+//         </button>
+//     )
+// }
+
+// export default LoginButton
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -24,6 +37,10 @@ const useStyles = makeStyles((theme) => ({
     details: {
       display: 'flex',
       flexDirection: 'column',
+      width: '100%',
+      height: '30%',
+      justifyContent: 'center',
+      alignItems: 'center'
     },
     content: {
       flex: '0 0 auto',
@@ -55,30 +72,39 @@ const useStyles = makeStyles((theme) => ({
             color: 'white',
             background: '#174A84'
         }
-    }
+    },
+    center: {
+        width: '100%',
+        height: '30%',
+        justifyContent: 'center',
+        alignItems: 'center'
+      },
+
   }));
 
   
 export default function Login({ ...rest }) {
     const classes = useStyles();
+       const { loginWithRedirect } = useAuth0();
     return <div style={{ background: '#174A84', height: '100vh',  width: '100%'}}> 
-        <Card className={classes.root}>
-            <div className={classes.details}>
-                <CardContent className={classes.content}>
-                <div className={classes.login}>
-                    <div className={classes.loginBox}>
-                        <TextField id="filled-basic" label="Username" variant="filled" />
-                        <TextField id="filled-basic" label="Password" type="password" variant="filled" />
-                        <Button variant="contained" href="/admin/dashboard">Login</Button>
-                    </div>
-                </div>
-                </CardContent>
-            </div>
-            <CardMedia
-                className={classes.cover}
-                image={spaceImg}
-                title="Live from space album cover"
-            />
+         <Card className={classes.root}>
+             <CardMedia
+                 className={classes.cover}
+                 image={spaceImg}
+                 title="Live from space album cover"
+                
+             />
+            <Grid item xs={12} sm={12} md={4} lg={4}
+                        style={{
+                            textAlign:'center',
+                            width:300,
+                            paddingTop:180,
+                            paddingLeft:0,
+                            height:300
+                        }}
+                    >
+                 <Button classes='center' size='large' variant="contained" color="primary" onClick={() => loginWithRedirect()}>Login</Button>
+             </Grid>
         </Card>
-    </div>
-}
+     </div>
+ }
