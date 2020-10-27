@@ -16,7 +16,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import avatar from "assets/img/faces/marc.jpg";
 import axios from 'axios';
-axios.defaults.baseURL = "http://localhost:3000/";
+axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;

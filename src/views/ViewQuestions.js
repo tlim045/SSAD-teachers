@@ -23,7 +23,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Checkbox from '@material-ui/core/Checkbox';
 
-axios.defaults.baseURL = "http://localhost:3000/";
+axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
 
 const columns = [
   { id: 'galaxy', label: 'Galaxy', minWidth: 100 },

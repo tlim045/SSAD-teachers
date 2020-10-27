@@ -40,7 +40,7 @@ import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
 
 import axios from 'axios';
-axios.defaults.baseURL = "http://localhost:3000/";
+axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
 
 
 const headCells = [

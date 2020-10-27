@@ -79,7 +79,7 @@ export default function Dashboard() {
 
 
   useEffect(() => {
-    const apiUrl = 'http://localhost:3000/getAllStudents';
+    const apiUrl = 'https://ssadteachers.herokuapp.com/getAllStudents';
     axios.get(apiUrl).then((allStudents) => {
       for ( var i = 0; i < allStudents.data.StudentList.length; i++ ){
         const data = allStudents.data.StudentList[i];
@@ -95,7 +95,7 @@ export default function Dashboard() {
   const [allLabs, setData2] = useState([]);
 
   useEffect(() => {
-    const apiUrl = 'http://localhost:3000/getAllLabGroups';
+    const apiUrl = 'https://ssadteachers.herokuapp.com/getAllLabGroups';
     const labs = [];
     axios.get(apiUrl).then((allLabs) => {
       for ( var i = 0; i < allLabs.data.LabGroupList.length; i++ ){
