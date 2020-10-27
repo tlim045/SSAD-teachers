@@ -49,16 +49,16 @@ const dashboardRoutes = [
     layout: "/admin"
   },
   {
-    path: "/student/Michael-Scott",
-    name: "Michael Scott",
+    path: "/student",
+    name: "Student page",
     component: StudentPage,
     layout: "/admin",
     icon: EditIcon,
     hidden: true
   },
   {
-    path: "/lab/BCG3",
-    name: "BCG3",
+    path: "/lab",
+    name: "Lab group",
     component: LabPage,
     layout: "/admin",
     icon: EditIcon,

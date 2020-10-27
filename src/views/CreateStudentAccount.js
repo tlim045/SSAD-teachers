@@ -12,8 +12,15 @@ import CardHeader from "components/Card/CardHeader.js";
 import CardAvatar from "components/Card/CardAvatar.js";
 import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
-
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import avatar from "assets/img/faces/marc.jpg";
+import axios from 'axios';
+axios.defaults.baseURL = "http://localhost:3000/";
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const styles = {
   cardCategoryWhite: {
@@ -37,6 +44,56 @@ const styles = {
 const useStyles = makeStyles(styles);
 
 export default function CreateStudentAccount() {
+  const [input, setInput] = React.useState({
+    Username: "",
+    Password: "",
+    Email: "",
+    FirstName: "",
+    LastName: "",
+    LabGroup: "",
+    AccountType: "",
+    Activation: true
+  })
+
+  
+  const handleChange = (event) => {
+    setInput({
+      ...input, 
+      [event.target.name]: event.target.value
+    })
+  }
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  const handleSubmit = () => {
+    axios.post('/CreateAccount', input)
+    .then(res => console.log(res))
+    .catch(err => console.log(err));
+    setOpen(true);
+    clearInput();
+  }
+
+  const clearInput = () => {
+    setInput({
+      Username: "",
+      Password: "",
+      Email: "",
+      FirstName: "",
+      LastName: "",
+      LabGroup: "",
+      AccountType: "",
+      Activation: true
+    })
+  }
+
   const classes = useStyles();
   return (
     <div>
@@ -52,19 +109,23 @@ export default function CreateStudentAccount() {
                 <GridItem xs={12} sm={12} md={6}>
                   <CustomInput
                     labelText="Username"
-                    id="username"
+                    name="Username"
                     formControlProps={{
                       fullWidth: true
                     }}
+                    onChange = {handleChange}
+                    value = {input.Username}
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={6}>
                   <CustomInput
                     labelText="Password"
-                    id="password"
+                    name="Password"
                     formControlProps={{
                       fullWidth: true
                     }}
+                    onChange = {handleChange}
+                    value = {input.Password}
                   />
                 </GridItem>
               </GridContainer>
@@ -72,19 +133,23 @@ export default function CreateStudentAccount() {
                 <GridItem xs={12} sm={12} md={6}>
                   <CustomInput
                     labelText="First Name"
-                    id="first-name"
+                    name="FirstName"
                     formControlProps={{
                       fullWidth: true
                     }}
+                    onChange = {handleChange}
+                    value = {input.FirstName}
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={6}>
                   <CustomInput
                     labelText="Last Name"
-                    id="last-name"
+                    name="LastName"
                     formControlProps={{
                       fullWidth: true
                     }}
+                    onChange = {handleChange}
+                    value = {input.LastName}
                   />
                 </GridItem>
               </GridContainer>
@@ -92,37 +157,48 @@ export default function CreateStudentAccount() {
               <GridItem xs={12} sm={12} md={4}>
                   <CustomInput
                     labelText="Email address"
-                    id="email-address"
+                    name="Email"
                     formControlProps={{
                       fullWidth: true
                     }}
+                    onChange = {handleChange}
+                    value = {input.Email}
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={4}>
                   <CustomInput
                     labelText="Lab group"
-                    id="lab-group"
+                    name="LabGroup"
                     formControlProps={{
                       fullWidth: true
                     }}
+                    onChange = {handleChange}
+                    value = {input.LabGroup}
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={4}>
                   <CustomInput
                     labelText="User type"
-                    id="user-type"
+                    name="AccountType"
                     formControlProps={{
                       fullWidth: true
                     }}
+                    onChange = {handleChange}
+                    value = {input.AccountType}
                   />
                 </GridItem>
               </GridContainer>
             </CardBody>
             <CardFooter>
-              <Button color="primary">Create new account</Button>
+              <Button color="primary" onClick={handleSubmit}>Create new account</Button>
             </CardFooter>
           </Card>
         {/* </GridItem> */}
+        <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+          <Alert onClose={handleClose} severity="success">
+            Create account successfully!
+          </Alert>
+        </Snackbar>
       </GridContainer>
     </div>
   );

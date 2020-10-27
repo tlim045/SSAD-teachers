@@ -52,8 +52,8 @@ const headCells = [
 const dictOfGalaxy = ["Planning and Definning"];
 const dictOfPlanet = ["Decomposition Techniques", "Estimation tools", "Size and Cost Estimation of Software"];
 
-function createData(galaxy, planet, question, difficulty) {
-  return { galaxy: dictOfGalaxy[galaxy-1], planet: dictOfPlanet[planet-1], question, difficulty };
+function createData(galaxy, planet, question, difficulty, QuestionID) {
+  return { galaxy: dictOfGalaxy[galaxy-1], planet: dictOfPlanet[planet-1], question, difficulty, QuestionID };
 }
 
 function descendingComparator(a, b, orderBy) {
@@ -214,9 +214,9 @@ export default function SendAssignment() {
   }, [setAppState, updated]);
 
   const rows = [];
-  appState.allQuestions && appState.allQuestions.forEach(question => rows.push(createData(question.Galaxy, question.Planet, question.Question, question.Difficulty)));
+  appState.allQuestions && appState.allQuestions.forEach(question => 
+    rows.push(createData(question.Galaxy, question.Planet, question.Question, question.Difficulty, question.QuestionID)));
 
-  console.log(rows);
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
   const [selected, setSelected] = React.useState([]);
@@ -233,12 +233,14 @@ export default function SendAssignment() {
 
   };
 
-  const handleClick = (event, question) => {
-    const selectedIndex = selected.indexOf(question);
+  const handleClick = (event, QuestionID) => {
+
+    const selectedIndex = selected.indexOf(QuestionID);
     let newSelected = [];
 
     if (selectedIndex === -1) { 
-      newSelected = newSelected.concat(selected, question);
+      if (selected.length < 10) newSelected = newSelected.concat(selected, QuestionID);
+      else newSelected = selected;
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -373,12 +375,12 @@ export default function SendAssignment() {
                       {stableSort(rows, getComparator(order, orderBy))
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((row, index) => {
-                          const isItemSelected = isSelected(row.question);
+                          const isItemSelected = isSelected(row.QuestionID);
                           const labelId = `enhanced-table-checkbox-${index}`;
                           return (
                             <TableRow
                               hover
-                              onClick={(event) => handleClick(event, row.question)}
+                              onClick={(event) => handleClick(event, row.QuestionID)}
                               role="checkbox"
                               aria-checked={isItemSelected}
                               tabIndex={-1}

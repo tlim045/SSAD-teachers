@@ -230,7 +230,6 @@ export default function ViewQuestions() {
 
   const checkAns = (event) => {
     const isChecked = event.target.checked;
-    console.log(isChecked);
     if(isChecked){
       inputState.inputState.CorrectAns = event.target.name;
     }

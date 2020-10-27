@@ -17,43 +17,24 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
+import axios from 'axios';
 import {
     dailySalesChart,
     emailsSubscriptionChart
   } from "./../variables/charts";
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
+axios.defaults.baseURL = "http://localhost:3000/";
 
 // table
 const columns = [
-    { id: 'name', label: 'Name', minWidth: 170, type: 'link' },
-    { id: 'email', label: 'Email', minWidth: 100 },
-    { id: 'lab', label: 'Lab Group', minWidth: 100 },
-    { id: 'level', label: 'Current level', minWidth: 100 },
-    { id: 'score', label: 'Total Score', minWidth: 100 },
-    
+    { id: 'Username', label: 'Name', minWidth: 170, type: 'link' },
+    { id: 'Score', label: 'Total Score', minWidth: 100 }
   ];
   
-  function createData(name, email, lab, level, score) {
-    //calculate score here?
-    return { name, email, lab, level, score };
+  function createData(name, score) {
+    return { name, score };
   }
   
-  const rows = [
-    createData('Michael Scott', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-    createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-    createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-    createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-    createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-    createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-    createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-    createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-    createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-    createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934),
-    createData('Student 1', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934)
-  
-  ];
-  
-
 const useStyles = makeStyles((theme) => ({
     ...styles,
     formControl: {
@@ -102,20 +83,22 @@ const StyledTableCell = withStyles((theme) => ({
 
 export default function ViewLabs(){
     const classes = useStyles();
-    const [state, setState] = React.useState({
-        galaxy: '',
-        planet: '',
+    const [students, setStudents] = React.useState([]);
+    const href = window.location.href;
+    const labName = href.substring(href.lastIndexOf('/') + 1);
+
+    axios.get(`/getLabGroupInfo/${labName}`).then((allStudents) => {
+        const rows = [];
+        for ( var i = 0; i < allStudents.data.GroupInfo.length; i++ ){
+          const data = allStudents.data.GroupInfo[i];
+          rows.push(createData(data.Username, data.Score));
+        }
+        const allData = allStudents.data.GroupInfo.sort((a, b) => parseFloat(b.Score) - parseFloat(a.Score));
+        setStudents(allData);
     });
+
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
-    const handleChange = (event) => {
-        const name = event.target.name;
-        setState({
-            ...state,
-            [name]: event.target.value,
-        });
-    };
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -177,14 +160,16 @@ export default function ViewLabs(){
                 </TableRow>
                 </TableHead>
                 <TableBody>
-                {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                {students.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    console.log(row);
                     return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
                         {columns.map((column) => {
+                            console.log(column.id);
                         const value = row[column.id];
                         return (
                             <TableCell key={column.id} align={column.align} className={classes.cell}>
-                            {column.type === 'link' ? <a href={`/admin/student/${value.replace(' ', '-')}`}>{value}</a>: value}
+                            {column.type === 'link' ? <a href={`/admin/student/${value}`}>{value}</a>: value}
                             </TableCell>
                         );
                         })}
@@ -197,7 +182,7 @@ export default function ViewLabs(){
             <TablePagination
             rowsPerPageOptions={[5, 10, 15]}
             component="div"
-            count={rows.length}
+            count={students.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onChangePage={handleChangePage}
