@@ -23,7 +23,8 @@ import {
     emailsSubscriptionChart
   } from "./../variables/charts";
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
-axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+// axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+axios.defaults.baseURL = "http://localhost:3000/";
 
 // table
 const columns = [

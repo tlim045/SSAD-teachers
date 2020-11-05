@@ -22,17 +22,16 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Checkbox from '@material-ui/core/Checkbox';
-
-axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+import { dictOfGalaxy, dictOfPlanet } from './../variables/general';
+// axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+axios.defaults.baseURL = "http://localhost:3000/";
 
 const columns = [
   { id: 'galaxy', label: 'Galaxy', minWidth: 100 },
   { id: 'planet', label: 'Planet', minWidth: 100 },
-  { id: 'question', label: 'Question', minWidth: 100 }
+  { id: 'question', label: 'Question', minWidth: 100 },
+  { id: 'difficulty', label: 'Level', minWidth: 100}
 ];
-
-const dictOfGalaxy = ["Planning and Defining", "Design", "Implementation", "Testing and Maintainance"];
-const dictOfPlanet = ["Decomposition Techniques", "Estimation tools", "Size and Cost Estimation of Software"];
 
 function createData(galaxy, planet, question, difficulty) {
   return { galaxy: dictOfGalaxy[galaxy-1], planet: dictOfPlanet[planet-1], question, difficulty };

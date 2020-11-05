@@ -38,10 +38,10 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Toolbar from '@material-ui/core/Toolbar';
 import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
-
+import { dictOfGalaxy, dictOfPlanet } from './../../variables/general';
 import axios from 'axios';
-axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
-
+// axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+axios.defaults.baseURL = "http://localhost:3000/";
 
 const headCells = [
   { id: 'galaxy', numeric: false, disablePadding: true, label: 'Galaxy', minWidth: 100 },
@@ -49,8 +49,6 @@ const headCells = [
   { id: 'question', numeric: false, disablePadding: false, label: 'Question', minWidth: 100 }
 ];
 
-const dictOfGalaxy = ["Planning and Definning"];
-const dictOfPlanet = ["Decomposition Techniques", "Estimation tools", "Size and Cost Estimation of Software"];
 
 function createData(galaxy, planet, question, difficulty, QuestionID) {
   return { galaxy: dictOfGalaxy[galaxy-1], planet: dictOfPlanet[planet-1], question, difficulty, QuestionID };

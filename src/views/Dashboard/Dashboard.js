@@ -23,7 +23,10 @@ import GridContainer from "components/Grid/GridContainer.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
+import CustomPieChart from "components/Chart/CustomPieChart";
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
+
+axios.defaults.baseURL = "http://localhost:3000/";
 
 const useStyles = makeStyles({
   styles,
@@ -58,36 +61,38 @@ const columns = [
   // { id: 'lab', label: 'Lab Group', minWidth: 100 },
   // { id: 'level', label: 'Current level', minWidth: 100 },
   { id: 'score', label: 'Total Score', minWidth: 100 },
+  { id: 'labGroup', label: 'Lab Group', minWidth: 100}
   
 ];
-const rows = [
-  // createData('Michael Scott', 'student1@e.ntu.edu.sg', 'BCG3', 'Galaxy 1 Planet 5', 934), // TODO: Remove after linking to individual student dashboard
-];
 
-function createData(name, score) {
+function createData(name, score, labGroup) {
   //calculate score here?
 
-  return { name, score };
+  return { name, score, labGroup };
   // return { name, email, lab, score };
 }
 
-
 export default function Dashboard() {
 
-  const [data, setData] = useState(undefined);
+  const [rows, setData] = useState([]);
   const [] = useState();
 
+  const propsData = [
+    //TODO: Hardcoded values for now, extract from DB
+    { title: 'Planning and Defining', value: 80, color: '#ff9800'},
+    { title: 'Design', value: 25, color: '#f44336'},
+    { title: 'Implementation', value: 40, color: '#4caf50'},
+    { title: 'Testing and Maintainance', value: 60, color: '#00acc1'},
+  ]
 
   useEffect(() => {
-    const apiUrl = 'https://ssadteachers.herokuapp.com/getAllStudents';
-    axios.get(apiUrl).then((allStudents) => {
-      for ( var i = 0; i < allStudents.data.StudentList.length; i++ ){
-        const data = allStudents.data.StudentList[i];
-      //  rows.push(createData(data.Username, data.Email, data.LabGroup, 200));
-        rows.push(createData(data.Username, data.Score));
-      }
+    axios.get('/getAllStudents').then((allStudents) => {
       const allData = allStudents.data.StudentList.sort((a, b) => parseFloat(b.Score) - parseFloat(a.Score));
-      setData({allStudents: allData});
+      for ( var i = 0; i < allData.length; i++ ){
+        const data = allData[i];
+        rows.push(createData(data.Username, data.Score, data.LabGroup));
+      }
+      setData(rows);
     });
   }, [setData]);
 
@@ -95,9 +100,8 @@ export default function Dashboard() {
   const [allLabs, setData2] = useState([]);
 
   useEffect(() => {
-    const apiUrl = 'https://ssadteachers.herokuapp.com/getAllLabGroups';
     const labs = [];
-    axios.get(apiUrl).then((allLabs) => {
+    axios.get('/getAllLabGroups').then((allLabs) => {
       for ( var i = 0; i < allLabs.data.LabGroupList.length; i++ ){
        labs.push(allLabs.data.LabGroupList[i]);}
       setData2(labs);
@@ -128,7 +132,6 @@ export default function Dashboard() {
     setPage(0);
   };
   return (
-
     <div>
       <GridContainer>
       <Card>
@@ -210,23 +213,26 @@ export default function Dashboard() {
               <h4 className={classes.cardTitleWhite}>Galaxy Gameplay</h4>
             </CardHeader>
             <CardBody>
-            <PieChart
+            {/* <PieChart
 
-              radius={50}
+            radius={PieChart.defaultProps.radius - shiftSize}
               viewBoxSize={[100,100]}
               data={[
                 //TODO: Hardcoded values for now, extract from DB
-                { title: 'Planning and Defining', value: 80, color: '#ff9800',galaxy: 'student'},
+                { title: 'Planning and Defining', value: 80, color: '#ff9800'},
                 { title: 'Design', value: 25, color: '#f44336'},
                 { title: 'Implementation', value: 40, color: '#4caf50'},
                 { title: 'Testing and Maintainance', value: 60, color: '#00acc1'},
               ]}
-              label={({ dataEntry }) => dataEntry.title}
+              // label={({ dataEntry }) => (<a href={`/galaxy/${dataEntry.title}`}>{dataEntry.title}</a>)}
+              segmentsShift={(index) => (index === 0 ? 7 : 0.5)}
+              label={({ dataEntry }) => dataEntry.title }
               labelStyle={{
                 fontSize: '3px',
                 labelPosition: 30
               }}
-            />;
+            />; */}
+            <CustomPieChart stat={propsData} main={true}/>
             </CardBody>
           </Card>
         </GridItem>

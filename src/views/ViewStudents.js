@@ -30,7 +30,8 @@ import {
   } from "./../variables/charts";
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 
-axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+// axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+axios.defaults.baseURL = "http://localhost:3000/";
 
 const columns = [
     { id: 'question', label: 'Question', minWidth: 150, align: 'left' },

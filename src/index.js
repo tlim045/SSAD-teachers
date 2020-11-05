@@ -14,7 +14,8 @@ import ProtectedRoute from "././layouts/protected-route";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const hist = createBrowserHistory();
-axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+// axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+axios.defaults.baseURL = "http://localhost:3000/";
 
 const domain = process.env.REACT_APP_AUTH0_DOMAIN;
 const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID;

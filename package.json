@@ -7,13 +7,19 @@
   "dependencies": {
     "@auth0/auth0-react": "^1.1.0",
     "@material-ui/core": "4.10.0",
-    "@material-ui/icons": "4.9.1",
+    "@material-ui/icons": "https://registry.npmjs.org/@material-ui/icons/-/icons-4.9.1.tgz",
     "@material-ui/lab": "^4.0.0-alpha.56",
+    "@react-pdf/renderer": "^1.6.12",
+    "@types/googlemaps": "3.39.6",
+    "@types/markerclustererplus": "2.1.33",
+    "ajv": "6.12.2",
     "axios": "^0.20.0",
     "chartist": "0.10.1",
     "classnames": "2.2.6",
     "history": "4.10.1",
     "identicon.js": "^2.3.3",
+    "jest": "^26.6.1",
+    "jspdf": "^2.1.1",
     "perfect-scrollbar": "1.5.0",
     "prop-types": "15.7.2",
     "react": "16.13.1",
@@ -21,16 +27,19 @@
     "react-dom": "16.13.1",
     "react-google-maps": "9.4.5",
     "react-minimal-pie-chart": "^8.0.1",
+    "react-pdf": "^5.0.0",
     "react-router-dom": "5.2.0",
     "react-scripts": "^3.4.3",
     "react-share": "^4.3.1",
     "react-swipeable-views": "0.13.9",
+    "react-to-print": "^2.11.0",
     "react-window": "^1.8.5",
-    "request-promise": "^4.2.6"
+    "request-promise": "^4.2.6",
+    "typescript": "3.9.3"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "PORT=3001 react-scripts start",
+    "build": "PORT=3001 react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "feed": "node ./src/dataPopulation/dataFeeding.js",
@@ -50,7 +59,7 @@
   "bugs": {
     "url": "https://github.com/creativetimofficial/material-dashboard-react/issues"
   },
-  "homepage": "https://creativetimofficial.github.io/material-dashboard-react/#/dashboard",
+  "homepage": ".",
   "optionalDependencies": {
     "@types/googlemaps": "3.39.6",
     "@types/markerclustererplus": "2.1.33",

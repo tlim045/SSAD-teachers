@@ -9,6 +9,7 @@ import ViewQuestionsPage from "views/ViewQuestions";
 import StudentPage from "views/ViewStudents";
 import LabPage from "views/ViewLabs";
 import CreateStudentAccount from "views/CreateStudentAccount";
+import GalaxyPage from "views/ViewGalaxy";
 import Logout from '../src/layouts/logout';
 
 
@@ -63,6 +64,14 @@ const dashboardRoutes = [
     layout: "/admin",
     icon: EditIcon,
     hidden: true
+  },
+  {
+    path: "/galaxy/",
+    name: "Galaxy page",
+    component: GalaxyPage,
+    layout: "/admin",
+    icon: EditIcon,
+    hidden: true,
   },
   {
     path: "/logout",

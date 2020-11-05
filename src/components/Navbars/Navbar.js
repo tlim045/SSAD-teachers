@@ -11,7 +11,6 @@ import Hidden from "@material-ui/core/Hidden";
 import Menu from "@material-ui/icons/Menu";
 // core components
 
-
 import Button from "components/CustomButtons/Button.js";
 
 import styles from "assets/jss/material-dashboard-react/components/headerStyle.js";
@@ -43,7 +42,6 @@ export default function Header(props) {
             {makeBrand()}
           </Button>
         </div>
-
         <Hidden mdUp implementation="css">
           <IconButton
             color="inherit"

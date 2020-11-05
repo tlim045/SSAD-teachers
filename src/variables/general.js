@@ -18,9 +18,15 @@ var server = [
   'Sign contract for "What are conference organizers afraid of?"'
 ];
 
+var dictOfGalaxy = ["Planning and Defining", "Design", "Implementation", "Testing and Maintainance"];
+
+var dictOfPlanet = ["Decomposition Techniques", "Estimation tools", "Size and Cost Estimation of Software", "hello", "world"];
+
 module.exports = {
   // these 3 are used to create the tasks lists in TasksCard - Dashboard view
   bugs,
   website,
-  server
+  server,
+  dictOfGalaxy,
+  dictOfPlanet
 };
