@@ -3,20 +3,11 @@ import ChartistGraph from "react-chartist";
 
 var delays2 = 80, durations2 = 500;
 
-export default function CustomBarChart({ galaxy, data }){
+export default function CustomBarChart({ galaxy, stat }){
     const chart = {
         data: {
-          labels: [
-            "Planet 1",
-            "Planet 2",
-            "Planet 3",
-            "Planet 4",
-            "Planet 5",
-            "Planet 6",
-            "Planet 7",
-            "Planet 8"
-          ],
-          series: [[542, 443, 320, 780, 553, 453, 326, 434]]
+          labels: stat.label,
+          series: stat.data
         },
         options: {
           axisX: {

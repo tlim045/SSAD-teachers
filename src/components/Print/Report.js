@@ -4,77 +4,31 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
-import jsPDF from 'jspdf';
-import { Document, Text, View, StyleSheet, PDFDownloadLink } from "@react-pdf/renderer";
-import ReactPDF from '@react-pdf/renderer';
 
 export default function Report({ lineChart, pieChart, barChart, table, openReport, closeReport }){
-    const [reportOpen, setReportOpen] = React.useState(false);
-    const MyDocument = () => {
-        return <Document>
-        <div id="divToPrint" 
-                style={{backgroundColor: '#f5f5f5',
-                        width: '210mm',
-                        minHeight: '297mm',
-                        marginLeft: 'auto',
-                        marginRight: 'auto'}}>
-                {barChart}
-                {lineChart}
-                {pieChart}
-                {table}
-        </div>
-        </Document>
-    }
-    const generateReport = () => {
-        const input = document.getElementById('divToPrint');
-        setReportOpen(true);
-        // puppeteer
-        // .launch()
-        // .then()
-        // html2pdf().from(input).save();
-        // console.log(input.offsetWidth);
-        // html2canvas(input)
-        // .then((canvas) => {
-        //     var pdf = new jsPDF('p', 'pt', 'a4');
-        //     var options = {
-        //             pagesplit: true
-        //         };
-        //     pdf.addHTML($(".pdf-wrapper"), options, function()
-        //     {
-        //         pdf.save("test.pdf");
-        //     });
-        //     // console.log(canvas.offsetHeight);
-        //     // const imgData = canvas.toDataURL('image/png');
-        //     // const pdf = new jsPDF();
-        //     // pdf.addImage(imgData, 'JPEG', 0, 0);
-        //     // // pdf.output('dataurlnewwindow');
-        //     // pdf.save("download.pdf");
-        // })
-        // ;
-        // closeReport();
-        // ReactPDF.render(<MyDocument />, `${__dirname}/example.pdf`);
-    }
-
     return (
-    !reportOpen ? 
     <Dialog open={openReport} onClose={closeReport} aria-labelledby="form-dialog-title" maxWidth='xl'>
         <DialogTitle id="form-dialog-title" color='primary'>View report</DialogTitle>
         <DialogContent>
-            {MyDocument()}
+            <div id="divToPrint" 
+                    style={{backgroundColor: '#f5f5f5',
+                            width: '210mm',
+                            minHeight: '297mm',
+                            marginLeft: 'auto',
+                            marginRight: 'auto'}}>
+                    {barChart}
+                    {lineChart}
+                    {pieChart}
+                    {table}
+            </div>
         </DialogContent>
         <DialogActions>
             <Button onClick={closeReport} color="primary">
-                Cancel
-            </Button>
-            <Button onClick={generateReport} color="primary">
-                Print
+                Close
             </Button>
         </DialogActions>
     </Dialog>
-    :
-    <PDFDownloadLink document={<MyDocument />} fileName="somename.pdf">
-        {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download now!')}
-    </PDFDownloadLink>)
+    );
 }
 
 

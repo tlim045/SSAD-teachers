@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ChartistGraph from "react-chartist";
 import GridItem from "components/Grid/GridItem.js";
@@ -8,12 +8,7 @@ import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 import CardAvatar from "components/Card/CardAvatar.js";
 import CardFooter from "components/Card/CardFooter.js";
-import ArrowUpward from "@material-ui/icons/ArrowUpward";
 import AccessTime from "@material-ui/icons/AccessTime";
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -23,35 +18,34 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Identicon from 'identicon.js';
+import PublicIcon from '@material-ui/icons/Public';
+import Update from "@material-ui/icons/Update";
+import Divider from '@material-ui/core/Divider';
+import Grade from "@material-ui/icons/Grade";
+import CardIcon from "components/Card/CardIcon.js";
+import LanguageIcon from '@material-ui/icons/Language';
+import SpeedIcon from '@material-ui/icons/Speed';
+import CustomBarChart from 'components/Chart/CustomBarChart';
+import CustomPieChart from "components/Chart/CustomPieChart";
+import CustomLineChart from "components/Chart/CustomLineChart";
 import axios from 'axios';
-import {
-    dailySalesChart,
-    emailsSubscriptionChart
-  } from "./../variables/charts";
+import { dictOfPlanet, dictOfGalaxy } from './../variables/general';
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 
 // axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
 axios.defaults.baseURL = "http://localhost:3000/";
 
 const columns = [
-    { id: 'question', label: 'Question', minWidth: 150, align: 'left' },
-    { id: 'attempt', label: 'Attempts', minWidth: 100, align: 'right' },
-    { id: 'score', label: 'Score', minWidth: 100, align: 'right' }
-  ];
-  
-  function createData(question, attempt, score) {
-    return { question, attempt, score };
-  }
-  
-  const rows = [
-    createData('Which one of the following is not an Evolutionary Process Model?', 1, 16),
-    createData("The Incremental Model is a result of combination of elements of which two models?", 2, 16),
-    createData("What is the major advantage of using Incremental Model?", 0, 0),
-    createData("The spiral model was originally proposed by", 0, 0),
-    createData("The spiral model has two dimensions namely _____________ and ____________", 5, 16),
-    createData("How is WINWIN Spiral Model different from Spiral Model?", 3, 16),
-    createData("Identify the disadvantage of Spiral Model.", 1, 14)
+    { id: 'planet', label: 'Planet', minWidth: 100 },
+    { id: 'question', label: 'Question', minWidth: 100 },
+    { id: 'difficulty', label: 'Level', minWidth: 100},
+    { id: 'attempt', label: 'Attempts', minWidth: 100},
+    { id: 'passFail', label: 'Pass/Fail', minWidth: 100}
 ];
+
+function createData(planet, question, difficulty, attempt, passFail) {
+    return { planet: dictOfPlanet[planet-1], question, difficulty, attempt, passFail };
+}
 
 const useStyles = makeStyles((theme) => ({
     ...styles,
@@ -123,36 +117,59 @@ export default function ViewStudents(){
         hexString: ""
     })
 
+    const barChartStat = {
+        label: [
+            "Galaxy 1",
+            "Galaxy 2",
+            "Galaxy 3",
+            "Galaxy 4"
+          ],
+        data: [[542, 443, 320, 780]]
+    }
+
+    const pieChartStat = [
+        { title: 'Easy', value: 200, color: '#4caf50'},
+        { title: 'Medium', value: 100, color: '#00acc1'},
+        { title: 'Difficult', value: 60, color: '#ff9800'},
+    ]
+
+    const lineChartStat = {
+        label: ["Planet 1", "Planet 2", "Planet 3", "Planet 4", "Planet 5", "Planet 6", "Planet 7", "Planet 8"],
+        data: [[12, 17, 7, 17, 23, 18, 38, 10]]
+    }
+
+    const [appState, setAppState] = useState({
+        loading: false,
+        allQuestions: null,
+    });
+
     useEffect(() => {
-        axios.get('/getStudentAccounts').then((allStudents) => {
-            const students = allStudents.data.filter(student => student.Username === studentName);
-            const data = students[0];
-            const student = {
-                username: data.Username,
-                fullname: data.FirstName + " " + data.LastName,
-                labGroup: data.LabGroup,
-                email: data.Email,
-                hexString: ConvertStringToHex(data.Username + data.Email + 
-                                                data.FirstName + " " + data.LastName)
+        axios.get(`/getStudentDetails/${studentName}`).then(data => {
+            const student = data.data[0];
+            console.log(student);
+            const temp = {
+                username: student.Username,
+                fullname: student.FirstName + " " + student.LastName,
+                labGroup: student.LabGroup,
+                email: student.Email,
+                hexString: ConvertStringToHex(student.Username + student.Email + 
+                    student.FirstName + " " + student.LastName)
             }
-            setStudentInfo({ ...student });
+            setStudentInfo({ ...temp });
+        })
+
+        axios.get('/allQuestions').then((allQuestions) => {
+            const allData = allQuestions.data.questions;
+            setAppState({ loading: false, allQuestions: allData });
         });
     });
 
-    const [state, setState] = React.useState({
-        galaxy: '',
-        planet: '',
-    });
+    const rows = [];
+    appState.allQuestions && appState.allQuestions.forEach(question => rows.push(createData(question.Planet, question.Question, question.Difficulty, 2, "Pass")));
+
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
-    const handleChange = (event) => {
-        const name = event.target.name;
-        setState({
-            ...state,
-            [name]: event.target.value,
-        });
-    };
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -168,34 +185,8 @@ export default function ViewStudents(){
 
     return <div>
         <GridContainer>
-            <GridItem xs={12} sm={12} md={8}>
-                <Card chart>
-                    <CardHeader color="success">
-                    <ChartistGraph
-                        className="ct-chart"
-                        data={dailySalesChart.data}
-                        type="Line"
-                        options={dailySalesChart.options}
-                        listener={dailySalesChart.animation}
-                    />
-                    </CardHeader>
-                    <CardBody>
-                    <h4 className={classes.cardTitle}>Activity</h4>
-                    <p className={classes.cardCategory}>
-                        <span className={classes.successText}>
-                        <ArrowUpward className={classes.upArrowCardCategory} /> 55%
-                        </span>{" "}
-                        increase in today activities.
-                    </p>
-                    </CardBody>
-                    <CardFooter chart>
-                    <div className={classes.stats}>
-                        <AccessTime /> updated 4 minutes ago
-                    </div>
-                    </CardFooter>
-                </Card>
-            </GridItem>
-            <GridItem xs={12} sm={12} md={4}>
+            {/* <GridItem xs={12} sm={6} md={4}/> */}
+            <GridItem xs={12} sm={6} md={12}>
                 <Card profile>
                     <CardAvatar profile>
                         <a href="#pablo" onClick={e => e.preventDefault()}>
@@ -212,74 +203,136 @@ export default function ViewStudents(){
                     </CardBody>
                 </Card>
             </GridItem>
+            {/* <GridItem xs={12} sm={6} md={4}/> */}
+             
         </GridContainer>
         <GridContainer>
-            <GridItem xs={12} sm={12} md={6}>
-                <FormControl variant="filled" className={classes.formControl}>
-                    <InputLabel htmlFor="filled-age-native-simple">Galaxy</InputLabel>
-                    <Select
-                    native
-                    value={state.galaxy}
-                    onChange={handleChange}
-                    inputProps={{
-                        name: 'galaxy',
-                        id: 'filled-age-native-simple',
-                    }}
-                    >
-                    <option aria-label="None" value="" />
-                    <option value={"Milky Way"}>Milky Way</option>
-                    </Select>
-                </FormControl>
-                <FormControl variant="filled" className={classes.formControl}>
-                    <InputLabel htmlFor="filled-age-native-simple">Planet</InputLabel>
-                    <Select
-                    native
-                    value={state.planet}
-                    onChange={handleChange}
-                    inputProps={{
-                        name: 'planet',
-                        id: 'filled-age-native-simple',
-                    }}
-                    >
-                    <option aria-label="None" value="" />
-                    <option value={"Mercury"}>Mercury</option>
-                    <option value={"Venus"}>Venus</option>
-                    <option value={"Earth"}>Earth</option>
-                    <option value={"Mars"}>Mars</option>
-                    <option value={"Jupiter"}>Jupiter</option>
-                    <option value={"Saturn"}>Saturn</option>
-                    <option value={"Uranus"}>Uranus</option>
-                    </Select>
-                </FormControl>
-            </GridItem>
-            <GridItem xs={12} sm={12} md={4}>
-                <Button className={classes.exportBtn} variant="contained">Export</Button>
-            </GridItem>
-        </GridContainer>
-        <GridContainer>
-            <GridItem xs={12} sm={12} md={8}>
-            <Card chart>
-                <CardHeader color="warning">
-                <ChartistGraph
-                    className="ct-chart"
-                    data={emailsSubscriptionChart.data}
-                    type="Bar"
-                    options={emailsSubscriptionChart.options}
-                    responsiveOptions={emailsSubscriptionChart.responsiveOptions}
-                    listener={emailsSubscriptionChart.animation}
-                />
+            <GridItem xs={12} sm={6} md={3}>
+            <Card>
+                <CardHeader color="warning" stats icon>
+                <CardIcon color="info">
+                    <Grade />
+                </CardIcon>
+                <p className={classes.cardCategory}>Score</p>
+                <h3 className={classes.cardTitle} style={{ color: '#3C4858'}}>
+                    49/50
+                </h3>
+                <span>yeah</span>
                 </CardHeader>
-                <CardBody>
-                <h4 className={classes.cardTitle}>Level</h4>
-                <p className={classes.cardCategory}>Student's Performance</p>
-                </CardBody>
-                <CardFooter chart>
-                <div className={classes.stats}>
-                    <AccessTime /> updated 2 days ago
-                </div>
+                <CardFooter stats>
+                    <div className={classes.stats}>
+                    <Update />
+                        Updated 2 hours ago
+                    </div>
                 </CardFooter>
             </Card>
             </GridItem>
+            <GridItem xs={12} sm={6} md={3}>
+            <Card>
+                <CardHeader color="success" stats icon>
+                <CardIcon color="info">
+                    <PublicIcon />
+                </CardIcon>
+                <p className={classes.cardCategory}>Current galaxy</p>
+                <h3 className={classes.cardTitle} style={{ color: '#3C4858'}}>Galaxy 1</h3>
+                <span style={{ color: '#3C4858'}}>Planning and Defining</span>
+                </CardHeader>
+                <CardFooter stats>
+                    <div className={classes.stats}>
+                    <Update />
+                        Just Updated
+                    </div>
+                </CardFooter>
+            </Card>
+            </GridItem>
+            <GridItem xs={12} sm={6} md={3}>
+            <Card>
+                <CardHeader color="info" stats icon>
+                <CardIcon color="info">
+                    <LanguageIcon />
+                </CardIcon>
+                <p className={classes.cardCategory}>Current planet</p>
+                <h3 className={classes.cardTitle} style={{ color: '#3C4858'}}>Planet 2</h3>
+                <span style={{ color: '#3C4858'}}>Decomposition Techniques</span>
+                </CardHeader>
+                <CardFooter stats>
+                    <div className={classes.stats}>
+                    <Update />
+                        Last 1 day
+                    </div>
+                </CardFooter>
+            </Card>
+            </GridItem>
+            <GridItem xs={12} sm={6} md={3}>
+            <Card>
+                <CardHeader color="primary" stats icon>
+                <CardIcon color="info">
+                    <SpeedIcon />
+                </CardIcon>
+                <p className={classes.cardCategory}>Current level</p>
+                <h3 className={classes.cardTitle} style={{ color: '#3C4858'}}>Medium</h3>
+                <span>Hello</span>
+                </CardHeader>
+                <CardFooter stats>
+                    <div className={classes.stats}>
+                    <Update />
+                        Last 2 days
+                    </div>
+                </CardFooter>
+            </Card>
+            </GridItem>
+        </GridContainer>
+
+        <Divider style={{ marginBottom: 40 }} variant="middle" />
+
+        <GridContainer>
+            <GridItem xs={12} sm={12} md={4}>
+                <Card chart>
+                    <CardHeader color="warning">
+                    <CustomBarChart stat={barChartStat}/>
+                    </CardHeader>
+                    <CardBody>
+                        <p className={classes.cardCategory}>How this student master each galaxy</p>
+                    </CardBody>
+                    <CardFooter chart>
+                    <div className={classes.stats}>
+                        <AccessTime /> updated 4 minutes ago
+                    </div>
+                    </CardFooter>
+                </Card>
+            </GridItem>
+            <GridItem xs={12} sm={12} md={4}>
+                <Card chart>
+                    <CardHeader color="success">
+                        <CustomLineChart stat={lineChartStat}/>
+                    </CardHeader>
+                    <CardBody>
+                        {/* <h4 className={classes.cardTitle}></h4> */}
+                        <p className={classes.cardCategory}>Number of correct answers/attempt on average</p>
+                    </CardBody>
+                    <CardFooter chart>
+                    <div className={classes.stats}>
+                        <AccessTime /> updated 4 minutes ago
+                    </div>
+                    </CardFooter>
+                </Card>
+            </GridItem>
+            <GridItem xs={12} sm={12} md={4}>
+                <Card chart>
+                    <CardHeader color="danger">
+                        <CustomPieChart stat = {pieChartStat}/>
+                    </CardHeader>
+                    <CardBody>
+                        <p className={classes.cardCategory}>How students master each level</p>
+                    </CardBody>
+                    <CardFooter chart>
+                    <div className={classes.stats}>
+                        <AccessTime /> updated 5 minutes ago
+                    </div>
+                    </CardFooter>
+                </Card>
+            </GridItem>
+            
         </GridContainer>
         <Paper className={classes.paperWrapper}>
             <TableContainer className={classes.container}>

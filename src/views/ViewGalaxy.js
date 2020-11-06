@@ -29,7 +29,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import Report from './../components/Print/Report';
-import PrintButton from './../components/Print/PrintButton';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import axios from 'axios';
 import { dictOfPlanet } from './../variables/general';
@@ -47,7 +46,7 @@ const columns = [
 
 function createData(planet, question, difficulty) {
     return { planet: dictOfPlanet[planet-1], question, difficulty };
-  }
+}
 
 export default function ViewGalaxy() {
     const pieChartStat = [
@@ -61,6 +60,19 @@ export default function ViewGalaxy() {
         data: [[12, 17, 7, 17, 23, 18, 38, 10]]
     }
 
+    const barChartStat = {
+        label: [
+            "Planet 1",
+            "Planet 2",
+            "Planet 3",
+            "Planet 4",
+            "Planet 5",
+            "Planet 6",
+            "Planet 7",
+            "Planet 8"
+          ],
+        data: [[542, 443, 320, 780, 553, 453, 326, 434]]
+    }
     const classes = useStyles();
     const href = window.location.href;
     var galaxyName = href.substring(href.lastIndexOf('/') + 1);
@@ -122,7 +134,7 @@ export default function ViewGalaxy() {
     const barChart = 
         <Card chart>
             <CardHeader color="warning">
-                <CustomBarChart />
+                <CustomBarChart stat={barChartStat}/>
             </CardHeader>
             <CardBody>
                 {/* <h4 className={classes.cardTitle}>Planet 4 is mastered by most students</h4> */}

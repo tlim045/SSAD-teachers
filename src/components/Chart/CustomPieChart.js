@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { PieChart } from 'react-minimal-pie-chart';
 import { useHistory } from 'react-router-dom';
 
-export default function CustomPieChart({ stat, main }) {
+export default function CustomPieChart({ stat, main = false }) {
     const galaxyList = ['Planning and Defining', 'Design', 'Implementation', 'Testing and Maintainance']
   const [selected, setSelected] = useState(-1);
   const [hovered, setHovered] = useState(undefined);
