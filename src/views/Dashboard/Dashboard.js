@@ -56,10 +56,8 @@ const useStyles = makeStyles({
 
 // table
 const columns = [
+  { id: 'rank', label: 'Rank', minWidth: 100},
   { id: 'name', label: 'Name', minWidth: 170, type: 'link' },
-  // { id: 'email', label: 'Email', minWidth: 100 },
-  // { id: 'lab', label: 'Lab Group', minWidth: 100 },
-  // { id: 'level', label: 'Current level', minWidth: 100 },
   { id: 'score', label: 'Total Score', minWidth: 100 },
   { id: 'labGroup', label: 'Lab Group', minWidth: 100}
   
@@ -160,11 +158,11 @@ export default function Dashboard() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
                   {columns.map((column) => {
-                    const value = row[column.id];
+                    const value = column.id !== 'rank' ? row[column.id] : `Rank ${index + 1}`;
                     return (
                       <TableCell key={column.id} align={column.align}>
                         {column.type === 'link' ? <a href={`/admin/student/${value}`}>{value}</a>: value}

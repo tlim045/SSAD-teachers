@@ -1,14 +1,9 @@
 import React from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import ChartistGraph from "react-chartist";
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
-import CardBody from "components/Card/CardBody.js";
-import CardFooter from "components/Card/CardFooter.js";
-import ArrowUpward from "@material-ui/icons/ArrowUpward";
-import AccessTime from "@material-ui/icons/AccessTime";
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -17,11 +12,11 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
+import Grade from "@material-ui/icons/Grade";
+import CardIcon from "components/Card/CardIcon.js";
+import CardFooter from "components/Card/CardFooter.js";
+import Update from "@material-ui/icons/Update";
 import axios from 'axios';
-import {
-    dailySalesChart,
-    emailsSubscriptionChart
-  } from "./../variables/charts";
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 // axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
 axios.defaults.baseURL = "http://localhost:3000/";
@@ -85,12 +80,17 @@ const StyledTableCell = withStyles((theme) => ({
 export default function ViewLabs(){
     const classes = useStyles();
     const [students, setStudents] = React.useState([]);
+    const [totalScore, setTotalScore] = React.useState(0);
     const href = window.location.href;
     const labName = href.substring(href.lastIndexOf('/') + 1);
 
     axios.get('/getAllStudents').then((allStudents) => {
         const rows = [];
         const allData = allStudents.data.StudentList.sort((a, b) => parseFloat(b.Score) - parseFloat(a.Score)).filter(item => item.LabGroup === labName);
+        
+        var tempScore = 0;
+        allData.forEach(student => tempScore+=student.Score);
+        setTotalScore(tempScore);
 
         for ( var i = 0; i < allData.length; i++ ){
             const data = allData[i];
@@ -112,7 +112,25 @@ export default function ViewLabs(){
     };
     return <div>
         <GridContainer>
-            <GridItem xs={12} sm={12} md={8}>
+            <GridItem xs={12} sm={6} md={3}>
+                <Card>
+                    <CardHeader color="warning" stats icon>
+                    <CardIcon color="info">
+                        <Grade />
+                    </CardIcon>
+                    <p className={classes.cardCategory}>Total Score</p>
+                    <h3 className={classes.cardTitle} style={{ color: '#3C4858'}}>
+                        {totalScore}
+                    </h3>
+                    <span>yeah</span>
+                    </CardHeader>
+                    <CardFooter stats>
+                        <div className={classes.stats}>
+                        <Update />
+                            Updated 2 hours ago
+                        </div>
+                    </CardFooter>
+                </Card>
             </GridItem>
         </GridContainer>
         <Paper className={classes.paperWrapper}>
@@ -136,7 +154,6 @@ export default function ViewLabs(){
                     return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
                         {columns.map((column) => {
-                            console.log(column.id);
                         const value = row[column.id];
                         return (
                             <TableCell key={column.id} align={column.align} className={classes.cell}>
