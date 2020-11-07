@@ -14,7 +14,7 @@ export default function CustomBarChart({ galaxy, stat }){
             showGrid: false
           },
           low: 0,
-          high: 1000,
+          high: 10,
           chartPadding: {
             top: 0,
             right: 5,
@@ -35,21 +35,21 @@ export default function CustomBarChart({ galaxy, stat }){
             }
           ]
         ],
-        // animation: {
-        //   draw: function(data) {
-        //     if (data.type === "bar") {
-        //       data.element.animate({
-        //         opacity: {
-        //           begin: (data.index + 1) * delays2,
-        //           dur: durations2,
-        //           from: 0,
-        //           to: 1,
-        //           easing: "ease"
-        //         }
-        //       });
-        //     }
-        //   }
-        // }
+        animation: {
+          draw: function(data) {
+            if (data.type === "bar") {
+              data.element.animate({
+                opacity: {
+                  begin: (data.index + 1) * delays2,
+                  dur: durations2,
+                  from: 0,
+                  to: 1,
+                  easing: "ease"
+                }
+              });
+            }
+          }
+        }
       };
     
 

@@ -10,18 +10,21 @@ import GridContainer from "components/Grid/GridContainer.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
+import Tooltip from '@material-ui/core/Tooltip';
 
 // radio buttons
 import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
 import Typography from '@material-ui/core/Typography';
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
+import Button from "components/CustomButtons/Button.js";
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 // Table
 import PropTypes from 'prop-types';
@@ -38,6 +41,8 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Toolbar from '@material-ui/core/Toolbar';
 import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import { dictOfGalaxy, dictOfPlanet } from './../../variables/general';
 import axios from 'axios';
 // axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
@@ -52,6 +57,10 @@ const headCells = [
 
 function createData(galaxy, planet, question, difficulty, QuestionID) {
   return { galaxy: dictOfGalaxy[galaxy-1], planet: dictOfPlanet[planet-1], question, difficulty, QuestionID };
+}
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
 function descendingComparator(a, b, orderBy) {
@@ -132,6 +141,7 @@ EnhancedTableHead.propTypes = {
 };
 
 const useToolbarStyles = makeStyles((theme) => ({
+  ...styles,
   root: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(1),
@@ -231,13 +241,13 @@ export default function SendAssignment() {
 
   };
 
-  const handleClick = (event, QuestionID) => {
+  const handleClick = (event, row) => {
 
-    const selectedIndex = selected.indexOf(QuestionID);
+    const selectedIndex = selected.findIndex(x => x.QuestionID === row.QuestionID);
     let newSelected = [];
 
     if (selectedIndex === -1) { 
-      if (selected.length < 10) newSelected = newSelected.concat(selected, QuestionID);
+      if (selected.length < 10) newSelected = newSelected.concat(selected, row);
       else newSelected = selected;
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
@@ -262,9 +272,8 @@ export default function SendAssignment() {
   };
 
 
-  const isSelected = (question) => selected.indexOf(question) !== -1;
+  const isSelected = (row) => selected.findIndex(x => x.QuestionID === row.QuestionID) !== -1;
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   // original 
   const classes = useStyles();
 
@@ -274,6 +283,8 @@ export default function SendAssignment() {
     setSelectedValue(event.target.value);
     // TODO: trigger Reddit/Twiiter base on value
   }
+
+  const [openSuccessMessage, setOpenSuccessMessage] = React.useState(false);
 
   // text field
   const [TextValue, setTextValue] = React.useState('');
@@ -286,6 +297,32 @@ export default function SendAssignment() {
   const handleChangeTitle = (event) => {
     setTitle(event.target.value);
   }
+
+  const [previewOpen, setPreviewOpen] = React.useState(false);
+
+  const previewAssignment = () => {
+    setPreviewOpen(true);
+  }
+
+  const handleClosePreviewAssignment = () => {
+    setPreviewOpen(false);
+  }
+
+  const [urlCode, setUrlCode] = React.useState("");
+
+  const saveAssignment = () => {
+    const data = {
+      username: "Reena",
+      questions: selected.map(each => each.QuestionID)
+    };
+    axios.post('/CreateAssignment', data)
+    .then(res => {
+      setUrlCode(res.data);
+      setOpenSuccessMessage(true);
+    })
+    .catch(err => console.log(err));
+  } 
+
 
   return (
     <div>
@@ -373,12 +410,12 @@ export default function SendAssignment() {
                       {stableSort(rows, getComparator(order, orderBy))
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((row, index) => {
-                          const isItemSelected = isSelected(row.QuestionID);
+                          const isItemSelected = isSelected(row);
                           const labelId = `enhanced-table-checkbox-${index}`;
                           return (
                             <TableRow
                               hover
-                              onClick={(event) => handleClick(event, row.QuestionID)}
+                              onClick={(event) => handleClick(event, row)}
                               role="checkbox"
                               aria-checked={isItemSelected}
                               tabIndex={-1}
@@ -392,7 +429,7 @@ export default function SendAssignment() {
                                 />
                               </TableCell>
                               <TableCell component="th" id={labelId} scope="row" padding="none">
-                                {row.question}
+                                {row.galaxy}
                               </TableCell>
                               <TableCell align="left">{row.planet}</TableCell>
                               <TableCell align="left">{row.question}</TableCell>
@@ -417,14 +454,80 @@ export default function SendAssignment() {
 
               <Grid item xs={12}>
               <div>
-                <TwitterShareButton
-                  title={`Assignment: ${Title}.` + '\n' + `${TextValue}`}
-                  
-                  url="https://stackoverflow.com/"
-                >
-                  <TwitterIcon size={32} round />
-                </TwitterShareButton>
+                <Button onClick={previewAssignment} color="primary" round>
+                  Preview assignment
+                </Button>
               </div>
+
+              <Dialog open={previewOpen} onClose={handleClosePreviewAssignment} aria-labelledby="form-dialog-title" maxWidth='xl'>
+                <DialogTitle id="form-dialog-title" color='primary'>Preview Assignment</DialogTitle>
+                <DialogContent>
+                  <Typography>This assignment will be shared on your Twitter</Typography>
+                  <h4>{Title}</h4>
+                  <h4>{`${TextValue}`}</h4>
+                  <Typography>List of 10 questions</Typography>
+                  <TableContainer className={classes.container}>
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        {headCells.map((column) => (
+                          <TableCell
+                            key={column.id}
+                            align={column.align}
+                            style={{ minWidth: column.minWidth }}
+                          >
+                            {column.label}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {selected.map((row) => {
+                        return (
+                          <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                            {headCells.map((column) => {
+                              const value = row[column.id];
+                              return (
+                                <TableCell key={column.id} align={column.align}>
+                                  {value}
+                                </TableCell>
+                              );
+                            })}
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                </DialogContent>
+                <DialogActions>
+                    {urlCode === "" 
+                    ?
+                      <div>
+                        <Button onClick={handleClosePreviewAssignment} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={saveAssignment} color="primary">
+                          Save
+                        </Button>
+                      </div> 
+                    :
+                    <Tooltip
+                    id="tooltip-top"
+                    title="Share on your Twitter"
+                    placement="top"
+                    classes={{ tooltip: classes.tooltip }}>
+                        <TwitterShareButton
+                        title={`${Title}. \n \n \n ${TextValue}. \n \n \n`}
+                        
+                        url={`\n ${urlCode}`}
+                      >
+                        <TwitterIcon size={32} round />
+                      </TwitterShareButton>
+                    </Tooltip>
+                    }
+                  </DialogActions>
+              </Dialog>
 
               </Grid>
             </CardBody>
@@ -432,6 +535,11 @@ export default function SendAssignment() {
         </GridItem>
 
       </GridContainer>
+      <Snackbar open={openSuccessMessage} autoHideDuration={6000} onClose={() => setOpenSuccessMessage(false)}>
+          <Alert onClose={() => setOpenSuccessMessage(false)} severity="success">
+              Assignment is saved. You can now share it!
+          </Alert>
+      </Snackbar>
       
     </div>
     

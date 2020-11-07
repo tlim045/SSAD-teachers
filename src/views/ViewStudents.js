@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import ChartistGraph from "react-chartist";
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import Card from "components/Card/Card.js";
@@ -28,9 +29,16 @@ import SpeedIcon from '@material-ui/icons/Speed';
 import CustomBarChart from 'components/Chart/CustomBarChart';
 import CustomPieChart from "components/Chart/CustomPieChart";
 import CustomLineChart from "components/Chart/CustomLineChart";
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from "components/CustomButtons/Button.js";
 import axios from 'axios';
 import { dictOfPlanet, dictOfGalaxy } from './../variables/general';
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
+import image404 from "./../assets/img/404-page-templates.png";
 
 // axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
 axios.defaults.baseURL = "http://localhost:3000/";
@@ -45,6 +53,10 @@ const columns = [
 
 function createData(planet, question, difficulty, attempt, passFail) {
     return { planet: dictOfPlanet[planet-1], question, difficulty, attempt, passFail };
+}
+
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -143,26 +155,30 @@ export default function ViewStudents(){
         allQuestions: null,
     });
 
+    const [updated, setUpdate] = useState(true);
+
     useEffect(() => {
         axios.get(`/getStudentDetails/${studentName}`).then(data => {
             const student = data.data[0];
-            console.log(student);
-            const temp = {
-                username: student.Username,
-                fullname: student.FirstName + " " + student.LastName,
-                labGroup: student.LabGroup,
-                email: student.Email,
-                hexString: ConvertStringToHex(student.Username + student.Email + 
-                    student.FirstName + " " + student.LastName)
-            }
-            setStudentInfo({ ...temp });
+            if(student !== undefined){
+                const temp = {
+                    username: student.Username,
+                    fullname: student.FirstName + " " + student.LastName,
+                    labGroup: student.LabGroup,
+                    email: student.Email,
+                    hexString: ConvertStringToHex(student.Username + student.Email + 
+                        student.FirstName + " " + student.LastName)
+                }
+                setStudentInfo({ ...temp });
+            } else setStudentInfo(undefined);
         })
 
         axios.get('/allQuestions').then((allQuestions) => {
             const allData = allQuestions.data.questions;
             setAppState({ loading: false, allQuestions: allData });
         });
-    });
+        setUpdate(false);
+    }, [updated]);
 
     const rows = [];
     appState.allQuestions && appState.allQuestions.forEach(question => rows.push(createData(question.Planet, question.Question, question.Difficulty, 2, "Pass")));
@@ -181,11 +197,39 @@ export default function ViewStudents(){
     };
 
     // create a base64 encoded PNG
-    var data = studentInfo.hexString.length >15 && new Identicon(studentInfo.hexString, 420).toString();
+    var data = studentInfo !== undefined && studentInfo.hexString.length >15 && new Identicon(studentInfo.hexString, 420).toString();
 
-    return <div>
+    const [galaxy, setGalaxy] = React.useState(1);
+    
+    const handleChange = (event) => {
+        setGalaxy(event.target.value);
+    };
+
+    const [deleteOpen, setDeleteOpen] = React.useState(false);
+    const [deleteSuccessful, setDeleteSuccessful] = React.useState(false);
+
+    const handleOpenDelete = () => setDeleteOpen(true);
+
+    const handleCloseDelete = () => setDeleteOpen(false);
+
+    const handleDeleteAccount = () => {
+        console.log(studentName);
+        axios.post(`/DeleteAccount/${studentName}`).then(setDeleteSuccessful(true));
+    }
+
+    const handleCloseDeleteSuccessful = () => {
+        setDeleteSuccessful(false);
+        handleCloseDelete();
+        setUpdate(true);
+    }
+
+    return studentInfo === undefined ? 
+    <div>
+        Account not found. Please go back to homepage
+        <img width='100%' src={image404}/>
+    </div> 
+    : <div>
         <GridContainer>
-            {/* <GridItem xs={12} sm={6} md={4}/> */}
             <GridItem xs={12} sm={6} md={12}>
                 <Card profile>
                     <CardAvatar profile>
@@ -200,12 +244,35 @@ export default function ViewStudents(){
                             Lab group {studentInfo.labGroup} <br/>
                             {studentInfo.email}
                         </p>
+                        {/* <Button style={{ background: "linear-gradient(60deg, #ab47bc, #8e24aa)", color: "white" }} onClick={handleOpenDelete}> */}
+                        <Button round color="primary" onClick={handleOpenDelete}>    
+                            Delete
+                        </Button>
                     </CardBody>
                 </Card>
             </GridItem>
             {/* <GridItem xs={12} sm={6} md={4}/> */}
              
         </GridContainer>
+
+        <Dialog open={deleteOpen} onClose={handleOpenDelete} aria-labelledby="form-dialog-title" maxWidth='xl'>
+            <DialogTitle id="form-dialog-title" color='primary'>Are you sure delete account <a>{studentName}</a></DialogTitle>
+            <DialogActions>
+                <Button onClick={handleCloseDelete} color="primary">
+                    Cancel
+                </Button>
+                <Button onClick={handleDeleteAccount} color="primary">
+                    Delete this account
+                </Button>
+            </DialogActions>
+        </Dialog>
+
+        <Snackbar open={deleteSuccessful} autoHideDuration={6000} onClose={handleCloseDeleteSuccessful}>
+            <Alert onClose={handleCloseDeleteSuccessful} severity="success">
+                Account is deleted
+            </Alert>
+        </Snackbar>
+
         <GridContainer>
             <GridItem xs={12} sm={6} md={3}>
             <Card>
@@ -308,7 +375,23 @@ export default function ViewStudents(){
                     </CardHeader>
                     <CardBody>
                         {/* <h4 className={classes.cardTitle}></h4> */}
-                        <p className={classes.cardCategory}>Number of correct answers/attempt on average</p>
+                        <p className={classes.cardCategory}>How this student master each planet in</p>
+                        <FormControl className={classes.formControl}>
+                            <Select
+                            native
+                            value={galaxy}
+                            onChange={handleChange}
+                            inputProps={{
+                                name: 'galaxy',
+                                id: 'age-native-simple',
+                            }}
+                            >
+                            <option value={1}>Galaxy 1</option>
+                            <option value={2}>Galaxy 2</option>
+                            <option value={3}>Galaxy 3</option>
+                            <option value={4}>Galaxy 4</option>
+                            </Select>
+                        </FormControl>
                     </CardBody>
                     <CardFooter chart>
                     <div className={classes.stats}>

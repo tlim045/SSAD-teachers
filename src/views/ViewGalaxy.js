@@ -30,8 +30,10 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import Report from './../components/Print/Report';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import axios from 'axios';
-import { dictOfPlanet } from './../variables/general';
+import { dictOfGalaxy, dictOfPlanet } from './../variables/general';
 
 // axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
 axios.defaults.baseURL = "http://localhost:3000/";
@@ -48,35 +50,36 @@ function createData(planet, question, difficulty) {
     return { planet: dictOfPlanet[planet-1], question, difficulty };
 }
 
+
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
 export default function ViewGalaxy() {
-    const pieChartStat = [
-        { title: 'Easy', value: 200, color: '#4caf50'},
-        { title: 'Medium', value: 100, color: '#00acc1'},
-        { title: 'Difficult', value: 60, color: '#ff9800'},
-    ]
-
-    const lineChartStat = {
-        label: ["Planet 1", "Planet 2", "Planet 3", "Planet 4", "Planet 5", "Planet 6", "Planet 7", "Planet 8"],
-        data: [[12, 17, 7, 17, 23, 18, 38, 10]]
-    }
-
-    const barChartStat = {
-        label: [
-            "Planet 1",
-            "Planet 2",
-            "Planet 3",
-            "Planet 4",
-            "Planet 5",
-            "Planet 6",
-            "Planet 7",
-            "Planet 8"
-          ],
-        data: [[542, 443, 320, 780, 553, 453, 326, 434]]
-    }
-    const classes = useStyles();
     const href = window.location.href;
     var galaxyName = href.substring(href.lastIndexOf('/') + 1);
     galaxyName = galaxyName.replace(/%20/g, " ");
+
+    const galaxyNumber = dictOfGalaxy.indexOf(galaxyName)+1;
+
+    const listOfPlanetLabel = 
+    [`Planet ${(galaxyNumber-1)*8+1}`, `Planet ${(galaxyNumber-1)*8+2}`, `Planet ${(galaxyNumber-1)*8+3}`, `Planet ${(galaxyNumber-1)*8+4}`,
+     `Planet ${(galaxyNumber-1)*8+5}`, `Planet ${(galaxyNumber-1)*8+6}`, `Planet ${(galaxyNumber-1)*8+7}`, `Planet ${(galaxyNumber-1)*8+8}`];
+
+    const [lineChartStat, setLineChartStat] = React.useState({
+        label: listOfPlanetLabel,
+        data: [[542, 443, 320, 780, 553, 453, 326, 434]]
+    });
+
+    const [barChartStat, setBarChartStat] = React.useState({
+        lable: listOfPlanetLabel,
+        data: [[12, 17, 7, 17, 23, 18, 38, 10]]
+    });
+    const [pieChartStat, setPieChartStat] = React.useState([]);
+
+    const [videoLink, setVideoLink] = React.useState("");
+
+    const classes = useStyles();
 
     const [appState, setAppState] = useState({
         loading: false,
@@ -97,24 +100,70 @@ export default function ViewGalaxy() {
     useEffect(() => {
         setAppState({ loading: true });
         axios.get('/allQuestions').then((allQuestions) => {
-            const allData = allQuestions.data.questions;
+            const allData = allQuestions.data.questions.filter(question => question.Galaxy === galaxyNumber.toString());
             setAppState({ loading: false, allQuestions: allData });
         });
-    }, [setAppState]);
+
+        var dictionary, dataTemp, i, planetNumber;
+
+        axios.get('/getNumberOfAttempsForOneCorrectAns').then(data => {
+            dictionary = data.data;
+            dataTemp = [[]];
+            for (i=1; i<=8; i++){
+                planetNumber =(galaxyNumber-1)*8+i;
+                if(dictionary[planetNumber.toString()] === undefined) dataTemp[0].push(0);
+                else dataTemp[0].push(dictionary[planetNumber.toString()]);
+            }
+            setBarChartStat({ data: dataTemp, label: listOfPlanetLabel });
+        })
+
+        axios.get('/getNumberOfCorrectAnswerOverQuestionForEachPlanet').then(data => {
+            dictionary = data.data;
+            dataTemp = [[]];
+            for(i=1; i<=8; i++){
+                planetNumber =(galaxyNumber-1)*8+i;
+                if(dictionary[planetNumber.toString()] === undefined) dataTemp[0].push(0);
+                else dataTemp[0].push(dictionary[planetNumber.toString()]);
+            }
+            setLineChartStat({ data: dataTemp, label: listOfPlanetLabel });
+        })
+
+        axios.get('/getNumberOfAttemptsByLevel').then(data => {
+            dictionary = data.data;
+            dataTemp = [];
+            if(dictionary.Easy > 0) dataTemp.push({ title: 'Easy', value: dictionary.Easy, color: '#4caf50'});
+            if(dictionary.Medium > 0) dataTemp.push({ title: 'Medium', value: dictionary.Medium, color: '#00acc1'});
+            if(dictionary.Difficult > 0) dataTemp.push({ title: 'Difficult', value: dictionary.Difficult, color: '#ff9800'});
+            setPieChartStat(dataTemp);
+        })
+
+        axios.get(`/getVideoLink/${galaxyNumber}`).then(data => {
+            dictionary = data.data[0];
+            setVideoLink(dictionary.url);
+        })
+
+    }, [setAppState, videoLink]);
 
     const rows = [];
     appState.allQuestions && appState.allQuestions.forEach(question => rows.push(createData(question.Planet, question.Question, question.Difficulty)));
 
     const [VideoOpen, setVideoOpen] = React.useState(false);
-    const [VideoURL, setVideoURL] = React.useState("");
+    const [VideoURLUpdated, handleSetVideoURL] = React.useState("");
 
     const handleChangeVideLink = (event) => {
-        setVideoURL(event.target.value);
+        handleSetVideoURL(event.target.value);
     }
 
     const handleVideoOk = () => {
-        setVideoOpen(false);
-        console.log(VideoURL);
+        const videoInput = {
+            galaxy: galaxyNumber,
+            url: VideoURLUpdated
+        };
+
+        if(videoLink === "") axios.post('/addVideoLink', videoInput).then(res => setVideoLink(res.url)).catch(err => console.log(err));
+        else axios.post('/updateVideoLink', videoInput).then(res => setVideoLink(res.url)).catch(err => console.log(err));
+
+        handleOpenUpdateVideoSuccessful();
       };
     
     const handleVideoCancel = () => {
@@ -124,6 +173,15 @@ export default function ViewGalaxy() {
     const handleOpenVideo = () => {
         setVideoOpen(true);
     }
+
+    const [updateVideoSuccessful, setUpdateVideoSuccessful] = React.useState(false);
+
+    const handleCloseUpdateVideoSuccessful = () => {
+        setUpdateVideoSuccessful(false);
+        setVideoOpen(false);
+    }
+
+    const handleOpenUpdateVideoSuccessful = () => setUpdateVideoSuccessful(true);
 
     const [reportOpen, setReportOpen] = useState(false);
 
@@ -137,8 +195,8 @@ export default function ViewGalaxy() {
                 <CustomBarChart stat={barChartStat}/>
             </CardHeader>
             <CardBody>
-                {/* <h4 className={classes.cardTitle}>Planet 4 is mastered by most students</h4> */}
-                <p className={classes.cardCategory}>How students master each planet</p>
+                <h4 className={classes.cardTitle}>How students master each planet</h4>
+                <p className={classes.cardCategory}>Calculated by number of attemps for 1 correct answer in each planet</p>
             </CardBody>
             <CardFooter chart>
             <div className={classes.stats}>
@@ -153,8 +211,8 @@ export default function ViewGalaxy() {
             <CustomLineChart stat={lineChartStat}/>
         </CardHeader>
         <CardBody>
-            {/* <h4 className={classes.cardTitle}></h4> */}
-            <p className={classes.cardCategory}>Number of correct answers/attempt on average</p>
+            <h4 className={classes.cardTitle}>How students answer questions </h4>
+            <p className={classes.cardCategory}>Calculated by number of correct answers over total questions in each planet</p>
         </CardBody>
         <CardFooter chart>
         <div className={classes.stats}>
@@ -169,7 +227,8 @@ export default function ViewGalaxy() {
             <CustomPieChart stat = {pieChartStat}/>
         </CardHeader>
         <CardBody>
-            <p className={classes.cardCategory}>How students master each level</p>
+            <h4 className={classes.cardTitle}>How students master each level</h4>
+            <p className={classes.cardCategory}>Calculated by number of attemps for 1 correct in each level</p>
         </CardBody>
         <CardFooter chart>
         <div className={classes.stats}>
@@ -310,7 +369,7 @@ export default function ViewGalaxy() {
                 </GridItem>
             </GridContainer>
             
-            <iframe style={{ marginBottom: 20 }} width="1100" height="315" src="https://www.youtube.com/embed/sB2iQSvrcG0" frameborder="0" allowfullscreen></iframe>
+            <iframe style={{ marginBottom: 20 }} width="1100" height="315" src={videoLink} frameborder="0" allowfullscreen></iframe>
             <Dialog open={VideoOpen} onClose={handleVideoCancel} aria-labelledby="form-dialog-title" maxWidth='xl'>
                 <DialogTitle id="form-dialog-title" color='primary'>Update tutorial url</DialogTitle>
                 <DialogContent>
@@ -330,6 +389,12 @@ export default function ViewGalaxy() {
             <Report lineChart={lineChart} pieChart={pieChart} barChart={barChart} 
                     table={questionTable(true)} openReport={reportOpen}
                     closeReport={() => closeReport()}/>
+
+            <Snackbar open={updateVideoSuccessful} autoHideDuration={6000} onClose={handleCloseUpdateVideoSuccessful}>
+                <Alert onClose={handleCloseUpdateVideoSuccessful} severity="success">
+                    Tutorial Video is updated
+                </Alert>
+            </Snackbar>
         </div>
     )
 }

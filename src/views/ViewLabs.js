@@ -88,13 +88,14 @@ export default function ViewLabs(){
     const href = window.location.href;
     const labName = href.substring(href.lastIndexOf('/') + 1);
 
-    axios.get(`/getLabGroupInfo/${labName}`).then((allStudents) => {
+    axios.get('/getAllStudents').then((allStudents) => {
         const rows = [];
-        for ( var i = 0; i < allStudents.data.GroupInfo.length; i++ ){
-          const data = allStudents.data.GroupInfo[i];
-          rows.push(createData(data.Username, data.Score));
+        const allData = allStudents.data.StudentList.sort((a, b) => parseFloat(b.Score) - parseFloat(a.Score)).filter(item => item.LabGroup === labName);
+
+        for ( var i = 0; i < allData.length; i++ ){
+            const data = allData[i];
+            rows.push(createData(data.Username, data.Score, data.LabGroup));
         }
-        const allData = allStudents.data.GroupInfo.sort((a, b) => parseFloat(b.Score) - parseFloat(a.Score));
         setStudents(allData);
     });
 
@@ -110,36 +111,6 @@ export default function ViewLabs(){
         setPage(0);
     };
     return <div>
-        <GridContainer>
-            <GridItem xs={12} sm={12} md={12}>
-                <Card chart>
-                    <CardHeader color="success">
-                    <ChartistGraph
-                        className="ct-chart"
-                        data={dailySalesChart.data}
-                        type="Line"
-                        options={dailySalesChart.options}
-                        listener={dailySalesChart.animation}
-                    />
-                    </CardHeader>
-                    <CardBody>
-                    <h4 className={classes.cardTitle}>Activity</h4>
-                    <p className={classes.cardCategory}>
-                        <span className={classes.successText}>
-                        <ArrowUpward className={classes.upArrowCardCategory} /> 55%
-                        </span>{" "}
-                        increase in today activities.
-                    </p>
-                    </CardBody>
-                    <CardFooter chart>
-                    <div className={classes.stats}>
-                        <AccessTime /> updated 4 minutes ago
-                    </div>
-                    </CardFooter>
-                </Card>
-            </GridItem>
-        </GridContainer>
-        
         <GridContainer>
             <GridItem xs={12} sm={12} md={8}>
             </GridItem>
@@ -162,7 +133,6 @@ export default function ViewLabs(){
                 </TableHead>
                 <TableBody>
                 {students.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    console.log(row);
                     return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
                         {columns.map((column) => {
