@@ -20,7 +20,9 @@ var server = [
 
 var dictOfGalaxy = ["Planning and Defining", "Design", "Implementation", "Testing and Maintainance"];
 
-var dictOfPlanet = ["Decomposition Techniques", "Estimation tools", "Size and Cost Estimation of Software", "hello", "world"];
+var dictOfPlanet = ["Decomposition Techniques", "Estimation tools", "Size and Cost Estimation of Software", "Elicitation Techniques", 
+                     "Joint Application Development", "Requirement Analysis", "Requirement Management", "Software Requirements Specification",
+                    "Structure Design", "Module Coupling", "Diagrams", "Development", "Software Management"];
 
 module.exports = {
   // these 3 are used to create the tasks lists in TasksCard - Dashboard view

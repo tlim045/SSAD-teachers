@@ -126,29 +126,28 @@ export default function ViewStudents(){
         fullname: "",
         labGroup: "",
         email: "",
-        hexString: ""
+        hexString: "",
+        planet: 0,
+        galaxy: 0,
+        score: 0,
     })
 
-    const barChartStat = {
-        label: [
-            "Galaxy 1",
-            "Galaxy 2",
-            "Galaxy 3",
-            "Galaxy 4"
-          ],
-        data: [[542, 443, 320, 780]]
-    }
+    const [galaxy, setGalaxy] = React.useState(1);
+    
+    const handleChange = (event) => {
+        setGalaxy(event.target.value);
+    };
 
-    const pieChartStat = [
-        { title: 'Easy', value: 200, color: '#4caf50'},
-        { title: 'Medium', value: 100, color: '#00acc1'},
-        { title: 'Difficult', value: 60, color: '#ff9800'},
-    ]
+    const listOfGalaxyLabel = [ "Galaxy 1", "Galaxy 2", "Galaxy 3", "Galaxy 4"];
 
-    const lineChartStat = {
-        label: ["Planet 1", "Planet 2", "Planet 3", "Planet 4", "Planet 5", "Planet 6", "Planet 7", "Planet 8"],
-        data: [[12, 17, 7, 17, 23, 18, 38, 10]]
-    }
+    const [lineChartStat, setLineChartStat] = React.useState({});
+
+    const [barChartStat, setBarChartStat] = React.useState({
+        lable: listOfGalaxyLabel,
+        data: [[12, 17, 7, 17]]
+    });
+
+    const [pieChartStat, setPieChartStat] = React.useState([]);
 
     const [appState, setAppState] = useState({
         loading: false,
@@ -159,33 +158,66 @@ export default function ViewStudents(){
 
     useEffect(() => {
         axios.get(`/getStudentDetails/${studentName}`).then(data => {
-            const student = data.data[0];
-            if(student !== undefined){
+            if(Object.keys(data.data) !== 0){
+                const studentInfo = data.data.information;
+                const score = data.data.score !== null ? data.data.score.Score : 0;
+                const planet = data.data.planet !== undefined ? data.data.planet.PlanetCount : 1;
                 const temp = {
-                    username: student.Username,
-                    fullname: student.FirstName + " " + student.LastName,
-                    labGroup: student.LabGroup,
-                    email: student.Email,
-                    hexString: ConvertStringToHex(student.Username + student.Email + 
-                        student.FirstName + " " + student.LastName)
+                    username: studentInfo !== undefined ? studentInfo.Username : "",
+                    fullname: studentInfo !== undefined ? studentInfo.FirstName + " " + studentInfo.LastName : "",
+                    labGroup: studentInfo !== undefined ? studentInfo.LabGroup: "",
+                    email: studentInfo !== undefined ? studentInfo.Email : "",
+                    hexString: studentInfo !== undefined ? ConvertStringToHex(studentInfo.Username + studentInfo.Email + 
+                        studentInfo.FirstName + " " + studentInfo.LastName) : "",
+                    score: score,
+                    planet: planet,
+                    galaxy: Math.floor((planet-1)/8)+1
                 }
                 setStudentInfo({ ...temp });
             } else setStudentInfo(undefined);
         })
 
-        axios.get('/allQuestions').then((allQuestions) => {
-            const allData = allQuestions.data.questions;
+        axios.get(`/getStudentSummary/${studentName}`).then(data => {
+            const allData = data.data;
             setAppState({ loading: false, allQuestions: allData });
-        });
+        })
+
+        var dictionary, dataTemp, i, planetNumber;
+
+        axios.get(`/getNumberOfAttempsForOneCorrectAnsForOneStudentForEachGalaxy/${studentName}`).then(data => {
+            dictionary = data.data;
+            dataTemp = [[]];
+            for (i=0; i<4; i++){
+                dataTemp[0].push(dictionary[i]);
+            }
+            setBarChartStat({ data: dataTemp, label: listOfGalaxyLabel });
+        })
+
+        axios.get(`/getNumberOfAttemptsByLevelForStudent/${studentName}`).then(data => {
+            dictionary = data.data;
+            dataTemp = [];
+            if(dictionary.Easy > 0) dataTemp.push({ title: 'Easy', value: dictionary.Easy, color: '#4caf50'});
+            if(dictionary.Medium > 0) dataTemp.push({ title: 'Medium', value: dictionary.Medium, color: '#00acc1'});
+            if(dictionary.Difficult > 0) dataTemp.push({ title: 'Difficult', value: dictionary.Difficult, color: '#ff9800'});
+            setPieChartStat(dataTemp);
+        })
+
+        axios.get(`/getNumberOfCorrectAnswerOverQuestionForOneStudentForEachPlanet/${studentName}`).then(data => {
+            setLineChartStat(data.data);
+            console.log(data.data);
+        })
+
+
         setUpdate(false);
     }, [updated]);
 
     const rows = [];
-    appState.allQuestions && appState.allQuestions.forEach(question => rows.push(createData(question.Planet, question.Question, question.Difficulty, 2, "Pass")));
+    appState.allQuestions && 
+    appState.allQuestions.forEach(question => 
+        rows.push(createData(question.Planet, question.Question, question.Difficulty, question.NumberOfAttempts, question.AnsweredCorrectly ? "Pass" : "Fail")));
 
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -198,12 +230,6 @@ export default function ViewStudents(){
 
     // create a base64 encoded PNG
     var data = studentInfo !== undefined && studentInfo.hexString.length >15 && new Identicon(studentInfo.hexString, 420).toString();
-
-    const [galaxy, setGalaxy] = React.useState(1);
-    
-    const handleChange = (event) => {
-        setGalaxy(event.target.value);
-    };
 
     const [deleteOpen, setDeleteOpen] = React.useState(false);
     const [deleteSuccessful, setDeleteSuccessful] = React.useState(false);
@@ -274,7 +300,7 @@ export default function ViewStudents(){
         </Snackbar>
 
         <GridContainer>
-            <GridItem xs={12} sm={6} md={3}>
+            <GridItem xs={12} sm={6} md={4}>
             <Card>
                 <CardHeader color="warning" stats icon>
                 <CardIcon color="info">
@@ -282,7 +308,7 @@ export default function ViewStudents(){
                 </CardIcon>
                 <p className={classes.cardCategory}>Score</p>
                 <h3 className={classes.cardTitle} style={{ color: '#3C4858'}}>
-                    49/50
+                    {studentInfo.score}
                 </h3>
                 <span>yeah</span>
                 </CardHeader>
@@ -294,15 +320,15 @@ export default function ViewStudents(){
                 </CardFooter>
             </Card>
             </GridItem>
-            <GridItem xs={12} sm={6} md={3}>
+            <GridItem xs={12} sm={6} md={4}>
             <Card>
                 <CardHeader color="success" stats icon>
                 <CardIcon color="info">
                     <PublicIcon />
                 </CardIcon>
                 <p className={classes.cardCategory}>Current galaxy</p>
-                <h3 className={classes.cardTitle} style={{ color: '#3C4858'}}>Galaxy 1</h3>
-                <span style={{ color: '#3C4858'}}>Planning and Defining</span>
+                <h3 className={classes.cardTitle} style={{ color: '#3C4858'}}>{`Galaxy ${studentInfo.galaxy}`}</h3>
+                <span style={{ color: '#3C4858'}}>{dictOfGalaxy[studentInfo.galaxy-1]}</span>
                 </CardHeader>
                 <CardFooter stats>
                     <div className={classes.stats}>
@@ -312,38 +338,20 @@ export default function ViewStudents(){
                 </CardFooter>
             </Card>
             </GridItem>
-            <GridItem xs={12} sm={6} md={3}>
+            <GridItem xs={12} sm={6} md={4}>
             <Card>
                 <CardHeader color="info" stats icon>
                 <CardIcon color="info">
                     <LanguageIcon />
                 </CardIcon>
                 <p className={classes.cardCategory}>Current planet</p>
-                <h3 className={classes.cardTitle} style={{ color: '#3C4858'}}>Planet 2</h3>
-                <span style={{ color: '#3C4858'}}>Decomposition Techniques</span>
+                <h3 className={classes.cardTitle} style={{ color: '#3C4858'}}>{`Planet ${studentInfo.planet}`}</h3>
+                <span style={{ color: '#3C4858'}}>{dictOfPlanet[studentInfo.planet-1]}</span>
                 </CardHeader>
                 <CardFooter stats>
                     <div className={classes.stats}>
                     <Update />
                         Last 1 day
-                    </div>
-                </CardFooter>
-            </Card>
-            </GridItem>
-            <GridItem xs={12} sm={6} md={3}>
-            <Card>
-                <CardHeader color="primary" stats icon>
-                <CardIcon color="info">
-                    <SpeedIcon />
-                </CardIcon>
-                <p className={classes.cardCategory}>Current level</p>
-                <h3 className={classes.cardTitle} style={{ color: '#3C4858'}}>Medium</h3>
-                <span>Hello</span>
-                </CardHeader>
-                <CardFooter stats>
-                    <div className={classes.stats}>
-                    <Update />
-                        Last 2 days
                     </div>
                 </CardFooter>
             </Card>
@@ -360,6 +368,9 @@ export default function ViewStudents(){
                     </CardHeader>
                     <CardBody>
                         <p className={classes.cardCategory}>How this student master each galaxy</p>
+                        <FormControl style={{visibility: 'hidden'}} className={classes.formControl}>
+                            <Select />
+                        </FormControl>
                     </CardBody>
                     <CardFooter chart>
                     <div className={classes.stats}>
@@ -371,7 +382,7 @@ export default function ViewStudents(){
             <GridItem xs={12} sm={12} md={4}>
                 <Card chart>
                     <CardHeader color="success">
-                        <CustomLineChart stat={lineChartStat}/>
+                        <CustomLineChart specialStat={lineChartStat} galaxy={galaxy}/>
                     </CardHeader>
                     <CardBody>
                         {/* <h4 className={classes.cardTitle}></h4> */}
@@ -407,6 +418,9 @@ export default function ViewStudents(){
                     </CardHeader>
                     <CardBody>
                         <p className={classes.cardCategory}>How students master each level</p>
+                        <FormControl style={{visibility: 'hidden'}} className={classes.formControl}>
+                            <Select />
+                        </FormControl>
                     </CardBody>
                     <CardFooter chart>
                     <div className={classes.stats}>
@@ -417,6 +431,9 @@ export default function ViewStudents(){
             </GridItem>
             
         </GridContainer>
+
+        <Divider style={{ marginBottom: 40 }} variant="middle" />
+
         <Paper className={classes.paperWrapper}>
             <TableContainer className={classes.container}>
             <Table stickyHeader>

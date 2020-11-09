@@ -4,11 +4,30 @@ import ChartistGraph from "react-chartist";
 var Chartist = require("chartist");
 var delays = 80, durations = 500;
 
-export default function CustomLineChart({ stat }){
+export default function CustomLineChart({ stat, specialStat, galaxy }){
+    var statData;
+    var statLabel;
+    if(specialStat !== undefined && galaxy !== undefined){
+        statData = [[]];
+        for(var i=1; i<=8; i++){
+            const planet = (galaxy-1)*8+i;
+            if(specialStat[planet] === undefined) statData[0].push(0);
+            else statData[0].push(specialStat[planet]);
+        }
+
+        statLabel = 
+        [`Planet ${(galaxy-1)*8+1}`, `Planet ${(galaxy-1)*8+2}`, `Planet ${(galaxy-1)*8+3}`, `Planet ${(galaxy-1)*8+4}`,
+         `Planet ${(galaxy-1)*8+5}`, `Planet ${(galaxy-1)*8+6}`, `Planet ${(galaxy-1)*8+7}`, `Planet ${(galaxy-1)*8+8}`];
+
+    } else {
+        statData = stat.data;
+        statLabel = stat.label;
+    }
+
     const chart = {
         data: {
-        labels: stat.label,
-        series: stat.data 
+        labels: statLabel,
+        series: statData
         },
         options: {
         lineSmooth: Chartist.Interpolation.cardinal({

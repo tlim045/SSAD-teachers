@@ -163,6 +163,7 @@ export default function ViewGalaxy() {
         if(videoLink === "") axios.post('/addVideoLink', videoInput).then(res => setVideoLink(res.url)).catch(err => console.log(err));
         else axios.post('/updateVideoLink', videoInput).then(res => setVideoLink(res.url)).catch(err => console.log(err));
 
+
         handleOpenUpdateVideoSuccessful();
       };
     
@@ -335,8 +336,8 @@ export default function ViewGalaxy() {
                     onClick={() => viewReport()}
                 >
                     <GetAppIcon className={classes.icons} />
-                    </Button>
-                </Tooltip>
+                </Button>
+            </Tooltip>
             <GridContainer>
                 <GridItem xs={12} sm={20} md={4}>
                     {barChart}

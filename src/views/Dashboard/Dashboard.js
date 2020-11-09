@@ -162,7 +162,7 @@ export default function Dashboard() {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
                   {columns.map((column) => {
-                    const value = column.id !== 'rank' ? row[column.id] : `Rank ${index + 1}`;
+                    const value = column.id !== 'rank' ? row[column.id] : `Rank ${index + page * rowsPerPage + 1}`;
                     return (
                       <TableCell key={column.id} align={column.align}>
                         {column.type === 'link' ? <a href={`/admin/student/${value}`}>{value}</a>: value}
