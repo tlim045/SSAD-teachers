@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import FormControl from "@material-ui/core/FormControl";
+import FormHelperText from "@material-ui/core/FormHelperText"
 import InputLabel from "@material-ui/core/InputLabel";
 import Input from "@material-ui/core/Input";
 // @material-ui/icons
@@ -12,7 +13,18 @@ import Check from "@material-ui/icons/Check";
 // core components
 import styles from "assets/jss/material-dashboard-react/components/customInputStyle.js";
 
-const useStyles = makeStyles(styles);
+const useStyles = makeStyles({
+  ...styles,
+  textHelper:{
+    color: "red",
+    margin: 0,
+    fontSize: '0.75rem',
+    marginTop: 3,
+    textAlign: 'left',
+    fontWeight: 400,
+    lineHeight: 1.66
+  }
+});
 
 export default function CustomInput(props) {
   const classes = useStyles();
@@ -26,7 +38,8 @@ export default function CustomInput(props) {
     success,
     name,
     onChange,
-    value
+    value,
+    emailValidation
   } = props;
 
   const labelClasses = classNames({
@@ -66,9 +79,13 @@ export default function CustomInput(props) {
         onChange={onChange}
         value={value}
         {...inputProps}
+        helperText="Please fill in "
       />
-      {error ? (
-        <Clear className={classes.feedback + " " + classes.labelRootError} />
+      {(emailValidation===false || error) ? (
+        <div>
+          <Clear className={classes.feedback + " " + classes.labelRootError} />
+          <p className={classes.textHelper}>{emailValidation===false ? "Invalid email" :  "Please fill in"}</p>
+        </div>
       ) : success ? (
         <Check className={classes.feedback + " " + classes.labelRootSuccess} />
       ) : null}

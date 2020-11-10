@@ -45,6 +45,7 @@ const styles = {
 const useStyles = makeStyles(styles);
 
 export default function CreateStudentAccount() {
+  const [error, setError] = React.useState({});
   const [input, setInput] = React.useState({
     Username: "",
     Password: "",
@@ -60,7 +61,8 @@ export default function CreateStudentAccount() {
   const handleChange = (event) => {
     setInput({
       ...input, 
-      [event.target.name]: event.target.value
+      [event.target.name]: event.target.value,
+      AccountType: "Student"
     })
   }
 
@@ -74,12 +76,27 @@ export default function CreateStudentAccount() {
     setOpen(false);
   };
 
+  const validateEmail = () => {
+    return (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(input.Email)) || input.Email === "";
+  }
+
   const handleSubmit = () => {
+    var tempError = {}
+    for(var key in input){
+      if(input[key] === "") tempError[key] = true;
+      else delete tempError[key];
+    }
+    setError(tempError);
+
+    if(Object.keys(tempError).length === 0 && validateEmail()){
+      console.log("valid");
     axios.post('/CreateAccount', input)
     .then(res => console.log(res))
     .catch(err => console.log(err));
     setOpen(true);
     clearInput();
+    }
+
   }
 
   const clearInput = () => {
@@ -116,7 +133,7 @@ export default function CreateStudentAccount() {
                     }}
                     onChange = {handleChange}
                     value = {input.Username}
-                    helperText="Must fill"
+                    error={error.Username}
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={6}>
@@ -128,7 +145,7 @@ export default function CreateStudentAccount() {
                     }}
                     onChange = {handleChange}
                     value = {input.Password}
-                    helperText="Must fill"
+                    error={error.Password}
                   />
                 </GridItem>
               </GridContainer>
@@ -142,7 +159,7 @@ export default function CreateStudentAccount() {
                     }}
                     onChange = {handleChange}
                     value = {input.FirstName}
-                    helperText="Must fill"
+                    error={error.FirstName}
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={6}>
@@ -154,7 +171,7 @@ export default function CreateStudentAccount() {
                     }}
                     onChange = {handleChange}
                     value = {input.LastName}
-                    helperText="Must fill"
+                    error={error.LastName}
                   />
                 </GridItem>
               </GridContainer>
@@ -163,12 +180,13 @@ export default function CreateStudentAccount() {
                   <CustomInput
                     labelText="Email address"
                     name="Email"
+                    emailValidation={validateEmail()}
                     formControlProps={{
                       fullWidth: true
                     }}
                     onChange = {handleChange}
                     value = {input.Email}
-                    helperText="Must fill"
+                    error={error.Email}
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={6}>
@@ -181,7 +199,7 @@ export default function CreateStudentAccount() {
                     
                     onChange = {handleChange}
                     value = {input.LabGroup}
-                    helperText="Must fill"
+                    error={error.LabGroup}
                   />
                 </GridItem>
                 {/* <GridItem xs={12} sm={12} md={4}>
