@@ -35,8 +35,8 @@ import MuiAlert from '@material-ui/lab/Alert';
 import axios from 'axios';
 import { dictOfGalaxy, dictOfPlanet } from './../variables/general';
 
-// axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
-axios.defaults.baseURL = "http://localhost:3000/";
+axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+// axios.defaults.baseURL = "http://localhost:3000/";
 
 const useStyles = makeStyles(styles);
 

@@ -40,8 +40,8 @@ import { dictOfPlanet, dictOfGalaxy } from './../variables/general';
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 import image404 from "./../assets/img/404-page-templates.png";
 
-// axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
-axios.defaults.baseURL = "http://localhost:3000/";
+axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+// axios.defaults.baseURL = "http://localhost:3000/";
 
 const columns = [
     { id: 'planet', label: 'Planet', minWidth: 100 },

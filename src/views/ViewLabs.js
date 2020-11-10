@@ -18,8 +18,8 @@ import CardFooter from "components/Card/CardFooter.js";
 import Update from "@material-ui/icons/Update";
 import axios from 'axios';
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
-// axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
-axios.defaults.baseURL = "http://localhost:3000/";
+axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+// axios.defaults.baseURL = "http://localhost:3000/";
 
 // table
 const columns = [

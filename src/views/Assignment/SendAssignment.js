@@ -45,8 +45,8 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import { dictOfGalaxy, dictOfPlanet } from './../../variables/general';
 import axios from 'axios';
-// axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
-axios.defaults.baseURL = "http://localhost:3000/";
+axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+// axios.defaults.baseURL = "http://localhost:3000/";
 
 const headCells = [
   { id: 'galaxy', numeric: false, disablePadding: true, label: 'Galaxy', minWidth: 100 },

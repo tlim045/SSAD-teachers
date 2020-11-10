@@ -26,7 +26,8 @@ import CardBody from "components/Card/CardBody.js";
 import CustomPieChart from "components/Chart/CustomPieChart";
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 
-axios.defaults.baseURL = "http://localhost:3000/";
+// axios.defaults.baseURL = "http://localhost:3000/";
+axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
 
 const useStyles = makeStyles({
   styles,

@@ -23,8 +23,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Checkbox from '@material-ui/core/Checkbox';
 import { dictOfGalaxy, dictOfPlanet } from './../variables/general';
-// axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
-axios.defaults.baseURL = "http://localhost:3000/";
+axios.defaults.baseURL = "https://ssadteachers.herokuapp.com/";
+// axios.defaults.baseURL = "http://localhost:3000/";
 
 const columns = [
   { id: 'galaxy', label: 'Galaxy', minWidth: 100 },
