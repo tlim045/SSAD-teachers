@@ -76,8 +76,8 @@ export default function Admin({ ...rest }) {
     <div className={classes.wrapper}>
       <Sidebar
         routes={routes}
-        logoText={"Professor Yu Han"} //TODO: Change according to login
-        logo={logo}
+        logoText={"Teacher Home Page"} //TODO: Change according to login
+        // logo={logo}
         image={image}
         handleDrawerToggle={handleDrawerToggle}
         open={mobileOpen}

@@ -158,10 +158,10 @@ export default function ViewStudents(){
 
     useEffect(() => {
         axios.get(`/getStudentDetails/${studentName}`).then(data => {
-            if(Object.keys(data.data) !== 0){
+            if(data.data.information !== undefined){
                 const studentInfo = data.data.information;
                 const score = data.data.score !== null ? data.data.score.Score : 0;
-                const planet = data.data.planet !== undefined ? data.data.planet.PlanetCount : 1;
+                const planet = data.data.planet !== undefined ? data.data.planet.UnlockedPlanet : 1;
                 const temp = {
                     username: studentInfo !== undefined ? studentInfo.Username : "",
                     fullname: studentInfo !== undefined ? studentInfo.FirstName + " " + studentInfo.LastName : "",
@@ -367,7 +367,8 @@ export default function ViewStudents(){
                     <CustomBarChart stat={barChartStat}/>
                     </CardHeader>
                     <CardBody>
-                        <p className={classes.cardCategory}>How this student master each galaxy</p>
+                    <h4 className={classes.cardTitle}>How this student master each galaxy</h4>
+                        <p className={classes.cardCategory}>Calculated by his number of attemps for 1 correct answer in each galaxy</p>
                         <FormControl style={{visibility: 'hidden'}} className={classes.formControl}>
                             <Select />
                         </FormControl>
@@ -386,7 +387,8 @@ export default function ViewStudents(){
                     </CardHeader>
                     <CardBody>
                         {/* <h4 className={classes.cardTitle}></h4> */}
-                        <p className={classes.cardCategory}>How this student master each planet in</p>
+                        <h4 className={classes.cardTitle}>How this student master each planet in</h4>
+                        <p className={classes.cardCategory}>Calculated by number of correct answers over total questions in each planet</p>
                         <FormControl className={classes.formControl}>
                             <Select
                             native
@@ -417,7 +419,8 @@ export default function ViewStudents(){
                         <CustomPieChart stat = {pieChartStat}/>
                     </CardHeader>
                     <CardBody>
-                        <p className={classes.cardCategory}>How students master each level</p>
+                    <h4 className={classes.cardTitle}>How students master each level</h4>
+                        <p className={classes.cardCategory}>Calculated by number of attemps for 1 correct in each level</p>
                         <FormControl style={{visibility: 'hidden'}} className={classes.formControl}>
                             <Select />
                         </FormControl>

@@ -52,7 +52,7 @@ export default function CreateStudentAccount() {
     FirstName: "",
     LastName: "",
     LabGroup: "",
-    AccountType: "",
+    AccountType: "Student",
     Activation: true
   })
 
@@ -116,6 +116,7 @@ export default function CreateStudentAccount() {
                     }}
                     onChange = {handleChange}
                     value = {input.Username}
+                    helperText="Must fill"
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={6}>
@@ -127,6 +128,7 @@ export default function CreateStudentAccount() {
                     }}
                     onChange = {handleChange}
                     value = {input.Password}
+                    helperText="Must fill"
                   />
                 </GridItem>
               </GridContainer>
@@ -140,6 +142,7 @@ export default function CreateStudentAccount() {
                     }}
                     onChange = {handleChange}
                     value = {input.FirstName}
+                    helperText="Must fill"
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={6}>
@@ -151,11 +154,12 @@ export default function CreateStudentAccount() {
                     }}
                     onChange = {handleChange}
                     value = {input.LastName}
+                    helperText="Must fill"
                   />
                 </GridItem>
               </GridContainer>
               <GridContainer>
-              <GridItem xs={12} sm={12} md={4}>
+              <GridItem xs={12} sm={12} md={6}>
                   <CustomInput
                     labelText="Email address"
                     name="Email"
@@ -164,20 +168,23 @@ export default function CreateStudentAccount() {
                     }}
                     onChange = {handleChange}
                     value = {input.Email}
+                    helperText="Must fill"
                   />
                 </GridItem>
-                <GridItem xs={12} sm={12} md={4}>
+                <GridItem xs={12} sm={12} md={6}>
                   <CustomInput
                     labelText="Lab group"
                     name="LabGroup"
                     formControlProps={{
                       fullWidth: true
                     }}
+                    
                     onChange = {handleChange}
                     value = {input.LabGroup}
+                    helperText="Must fill"
                   />
                 </GridItem>
-                <GridItem xs={12} sm={12} md={4}>
+                {/* <GridItem xs={12} sm={12} md={4}>
                   <CustomInput
                     labelText="User type"
                     name="AccountType"
@@ -187,7 +194,7 @@ export default function CreateStudentAccount() {
                     onChange = {handleChange}
                     value = {input.AccountType}
                   />
-                </GridItem>
+                </GridItem> */}
               </GridContainer>
             </CardBody>
             <CardFooter>

@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from 'react-router-dom';
 // @material-ui/core
 import { makeStyles } from "@material-ui/core/styles";
-import { TwitterShareButton, TwitterIcon } from "react-share";
+import { TwitterShareButton, TwitterIcon, RedditShareButton, RedditIcon } from "react-share";
 
 // core components
 import GridItem from "components/Grid/GridItem.js";
@@ -52,6 +52,12 @@ const headCells = [
   { id: 'galaxy', numeric: false, disablePadding: true, label: 'Galaxy', minWidth: 100 },
   { id: 'planet', numeric: false, disablePadding: false, label: 'Planet', minWidth: 100 },
   { id: 'question', numeric: false, disablePadding: false, label: 'Question', minWidth: 100 }
+];
+
+const columns = [
+  { id: 'assignmentCode', label: 'Assignment Code', minWidth: 100},
+  { id: 'username', label: 'Student Name', minWidth: 100 },
+  { id: 'score', label: 'Score', minWidth: 100 }
 ];
 
 
@@ -168,7 +174,7 @@ const EnhancedTableToolbar = (props) => {
   return (
     <Toolbar>
     <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-      Select 10 Questions
+      Select 8 Questions
     </Typography>
 
     </Toolbar>
@@ -211,6 +217,8 @@ export default function SendAssignment() {
   });
 
   const [updated, setUpdate] = React.useState(true);
+  const [assignmentHistory, setAssignmentHistory] = React.useState([]);
+
 
   React.useEffect(() => {
     setAppState({ loading: true });
@@ -218,12 +226,25 @@ export default function SendAssignment() {
       const allData = allQuestions.data.questions;
       setAppState({ loading: false, allQuestions: allData });
     });
+
+    axios.get('/getAssignmentScore').then(data => {
+      setAssignmentHistory(data.data);
+    })
     setUpdate(false);
   }, [setAppState, updated]);
 
   const rows = [];
+  const rows2 = [];
   appState.allQuestions && appState.allQuestions.forEach(question => 
     rows.push(createData(question.Galaxy, question.Planet, question.Question, question.Difficulty, question.QuestionID)));
+
+  
+  function createData2(assignmentCode, username, score) {
+    return { assignmentCode, username, score };
+  }
+  assignmentHistory.forEach(each => {
+    rows2.push(createData2(each.AssignmentCode, each.Username, each.Score));
+  })
 
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
@@ -247,7 +268,7 @@ export default function SendAssignment() {
     let newSelected = [];
 
     if (selectedIndex === -1) { 
-      if (selected.length < 10) newSelected = newSelected.concat(selected, row);
+      if (selected.length < 8) newSelected = newSelected.concat(selected, row);
       else newSelected = selected;
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
@@ -312,7 +333,7 @@ export default function SendAssignment() {
 
   const saveAssignment = () => {
     const data = {
-      username: "Reena",
+      username: "AXHGK",
       questions: selected.map(each => each.QuestionID)
     };
     axios.post('/CreateAssignment', data)
@@ -323,9 +344,53 @@ export default function SendAssignment() {
     .catch(err => console.log(err));
   } 
 
+  
 
   return (
     <div>
+      <Card>
+        <CardHeader color="primary">
+          <h4 className={classes.cardTitleWhite}>Assignment history</h4>
+        </CardHeader>
+        <CardBody>
+
+    <Paper className={classes.root}>
+    <TableContainer className={classes.container}>
+      <Table stickyHeader aria-label="sticky table">
+        <TableHead>
+          <TableRow>
+            {columns.map((column) => (
+              <TableCell
+                key={column.id}
+                align={column.align}
+                style={{ minWidth: column.minWidth }}
+              >
+                {column.label}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows2.map((row, index) => {
+            return (
+              <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                {columns.map((column) => {
+                  const value = row[column.id];
+                  return (
+                    <TableCell key={column.id} align={column.align}>
+                      {column.type === 'link' ? <a href={`/admin/student/${value}`}>{value}</a>: value}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  </Paper>
+  </CardBody>
+  </Card>
       <GridContainer>
         <GridItem xs={12}>
           <Card>
@@ -465,7 +530,7 @@ export default function SendAssignment() {
                   <Typography>This assignment will be shared on your Twitter</Typography>
                   <h4>{Title}</h4>
                   <h4>{`${TextValue}`}</h4>
-                  <Typography>List of 10 questions</Typography>
+                  <Typography>List of 8 questions</Typography>
                   <TableContainer className={classes.container}>
                   <Table stickyHeader aria-label="sticky table">
                     <TableHead>
@@ -512,6 +577,7 @@ export default function SendAssignment() {
                         </Button>
                       </div> 
                     :
+                    (selectedValue === 'a' ? 
                     <Tooltip
                     id="tooltip-top"
                     title="Share on your Twitter"
@@ -525,6 +591,21 @@ export default function SendAssignment() {
                         <TwitterIcon size={32} round />
                       </TwitterShareButton>
                     </Tooltip>
+                    : 
+                    <Tooltip
+                    id="tooltip-top"
+                    title="Share on your Reddit"
+                    placement="top"
+                    classes={{ tooltip: classes.tooltip }}>
+                        <RedditShareButton
+                        title={`${Title}. \n \n \n ${TextValue}. \n \n \n`}
+                        
+                        url={`\n ${urlCode}`}
+                      >
+                        <RedditIcon size={32} round />
+                      </RedditShareButton>
+                    </Tooltip>
+                    )
                     }
                   </DialogActions>
               </Dialog>
