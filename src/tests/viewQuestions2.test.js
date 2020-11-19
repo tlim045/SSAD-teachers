@@ -1,4 +1,4 @@
-import ViewQuestions from "./ViewQuestions";
+
 import mockAxios from "../mocks/axios";
 
 

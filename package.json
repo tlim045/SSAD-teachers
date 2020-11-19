@@ -20,6 +20,7 @@
     "history": "4.10.1",
     "identicon.js": "^2.3.3",
     "jest": "^26.6.3",
+    "jsdoc": "^3.6.6",
     "perfect-scrollbar": "1.5.0",
     "prop-types": "15.7.2",
     "react": "16.13.1",
