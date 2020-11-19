@@ -347,6 +347,7 @@ export default function ViewStudents(){
                 <p className={classes.cardCategory}>Current planet</p>
                 <h3 className={classes.cardTitle} style={{ color: '#3C4858'}}>{`Planet ${studentInfo.planet}`}</h3>
                 <span style={{ color: '#3C4858'}}>{dictOfPlanet[studentInfo.planet-1]}</span>
+                <span>yeah</span>
                 </CardHeader>
                 <CardFooter stats>
                     <div className={classes.stats}>

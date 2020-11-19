@@ -57,7 +57,7 @@ const headCells = [
 const columns = [
   { id: 'assignmentCode', label: 'Assignment Code', minWidth: 100},
   { id: 'username', label: 'Student Name', minWidth: 100 },
-  { id: 'score', label: 'Score', minWidth: 100 }
+  { id: 'score', label: 'Score (/8)', minWidth: 100 }
 ];
 
 
