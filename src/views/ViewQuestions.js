@@ -98,6 +98,7 @@ export default function ViewQuestions() {
     axios.get('/allQuestions').then((allQuestions) => {
       const allData = allQuestions.data.questions;
       setAppState({ loading: false, allQuestions: allData });
+      console.log(allData[0].Question)
     });
     setUpdate(false);
   }, [setAppState, updated]);
